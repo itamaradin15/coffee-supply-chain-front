@@ -83,7 +83,22 @@ export default function CoffeeLotTable() {
   const [isWalletConnected, setIsWalletConnected] = useState(false); // Estado para verificar si la wallet está conectada
   const [allLots, setAllLots] = useState([]); // Estado para almacenar todos los lotes
   const [contract, setContract] = useState(null);
-
+  const [selectedLot, setSelectedLot] = useState({
+    lote: '',
+    producto: '',
+    origen: '',
+    caficultor: '',
+    variedad: '',
+    altitud: '',
+    cantidad: ''
+  });
+  const handleInputChange = (field, value) => {
+    setSelectedLot(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+  
 
   useEffect(() => {
     const checkWalletConnection = async () => {
@@ -235,16 +250,6 @@ export default function CoffeeLotTable() {
 
       return null;
     }
-  };
-
-  const selectedLot = {
-    lote: "",
-    producto: "",
-    origen: "",
-    caficultor: "",
-    variedad: "",
-    altitud: "",
-    cantidad: "",
   };
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -478,49 +483,49 @@ export default function CoffeeLotTable() {
               <ModalBody>
                 {!islotCreated && (
                   <>
-                    <Input
-                      isReadOnly
-                      label="Lote"
-                      value={selectedLot.lote}
-                      variant="bordered"
-                    />
-                    <Input
-                      isReadOnly
-                      label="Producto"
-                      value={selectedLot.producto}
-                      variant="bordered"
-                    />
-                    <Input
-                      isReadOnly
-                      label="Origen"
-                      value={selectedLot.origen}
-                      variant="bordered"
-                    />
-                    <Input
-                      isReadOnly
-                      label="Caficultor"
-                      value={selectedLot.caficultor}
-                      variant="bordered"
-                    />
-                    <Input
-                      isReadOnly
-                      label="Variedad"
-                      value={selectedLot.variedad}
-                      variant="bordered"
-                    />
-                    <Input
-                      isReadOnly
-                      label="Altitud"
-                      value={selectedLot.altitud}
-                      variant="bordered"
-                    />
-                    <Input
-                      isReadOnly
-                      label="Cantidad"
-                      value={selectedLot.cantidad}
-                      variant="bordered"
-                    />
-                  </>
+                  <Input
+                    label="Lote"
+                    value={selectedLot.lote}
+                    onChange={(e) => handleInputChange('lote', e.target.value)}
+                    variant="bordered"
+                  />
+                  <Input
+                    label="Producto"
+                    value={selectedLot.producto}
+                    onChange={(e) => handleInputChange('producto', e.target.value)}
+                    variant="bordered"
+                  />
+                  <Input
+                    label="Origen"
+                    value={selectedLot.origen}
+                    onChange={(e) => handleInputChange('origen', e.target.value)}
+                    variant="bordered"
+                  />
+                  <Input
+                    label="Caficultor"
+                    value={selectedLot.caficultor}
+                    onChange={(e) => handleInputChange('caficultor', e.target.value)}
+                    variant="bordered"
+                  />
+                  <Input
+                    label="Variedad"
+                    value={selectedLot.variedad}
+                    onChange={(e) => handleInputChange('variedad', e.target.value)}
+                    variant="bordered"
+                  />
+                  <Input
+                    label="Altitud"
+                    value={selectedLot.altitud}
+                    onChange={(e) => handleInputChange('altitud', e.target.value)}
+                    variant="bordered"
+                  />
+                  <Input
+                    label="Cantidad"
+                    value={selectedLot.cantidad}
+                    onChange={(e) => handleInputChange('cantidad', e.target.value)}
+                    variant="bordered"
+                  />
+                </>
                 )}
 
               {islotCreated && (
