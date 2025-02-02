@@ -32,6 +32,7 @@ import CoffeeSupplyChain from "./CoffeeSupplyChain.json";
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 
 import DefaultLayout from "@/layouts/default";
+
 const columns = [
   { name: "LOTE", uid: "lote", sortable: true },
   { name: "PRODUCTO", uid: "producto", sortable: true },
@@ -55,22 +56,6 @@ const INITIAL_VISIBLE_COLUMNS = [
   "variedad",
   "altitud",
   "actions",
-];
-
-export const animals = [
-  { key: "cat", label: "Cat" },
-  { key: "dog", label: "Dog" },
-  { key: "elephant", label: "Elephant" },
-  { key: "lion", label: "Lion" },
-  { key: "tiger", label: "Tiger" },
-  { key: "giraffe", label: "Giraffe" },
-  { key: "dolphin", label: "Dolphin" },
-  { key: "penguin", label: "Penguin" },
-  { key: "zebra", label: "Zebra" },
-  { key: "shark", label: "Shark" },
-  { key: "whale", label: "Whale" },
-  { key: "otter", label: "Otter" },
-  { key: "crocodile", label: "Crocodile" },
 ];
 
 const SearchIcon = () => (
@@ -181,6 +166,9 @@ export default function CoffeeLotTable() {
   const handleCreateLot = async () => {
     if (contract) {
       try {
+
+        console.log(selectedLot)
+        return 
         setLoading(true); // Mostrar el spinner
         const lotId = generateLotId();
         const mainData = {
@@ -249,21 +237,14 @@ export default function CoffeeLotTable() {
     }
   };
 
-  // Supongamos que tienes un estado para controlar qué lote se está viendo
-  // const [selectedLot, setSelectedLot] = React.useState(null);
   const selectedLot = {
-    lote: "Lote #0015",
-    producto: "Café Gourmet Lumora",
-    origen: "San Roque, San Martin, Perú",
-    caficultor: "Pedro Perez",
-    variedad: "Typica, Bourbon, Caturra",
-    altitud: "1,200 - 1,500 msnm",
-    cantidad: "1,200 kg", // Simulando un cálculo basado en el índice
-  };
-  // Función para abrir el modal con un lote específico
-  const openLotModal = (lot) => {
-    setSelectedLot(lot);
-    onOpenChange(true); // Suponiendo que onOpenChange controla la visibilidad del modal
+    lote: "",
+    producto: "",
+    origen: "",
+    caficultor: "",
+    variedad: "",
+    altitud: "",
+    cantidad: "",
   };
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
