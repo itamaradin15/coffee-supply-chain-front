@@ -28,10 +28,10 @@ import {
   useDisclosure,
 } from "@heroui/modal";
 
-import CoffeeSupplyChain from "./CoffeeSupplyChain.json";
+import CoffeeSupplyChain from "./CoffeeSupplyChain.json"; 
+const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 
 import DefaultLayout from "@/layouts/default";
-const contractAddress = process.env.CONTRACT_ADDRESS;
 const columns = [
   { name: "LOTE", uid: "lote", sortable: true },
   { name: "PRODUCTO", uid: "producto", sortable: true },
@@ -99,6 +99,7 @@ export default function CoffeeLotTable() {
   const [allLots, setAllLots] = useState([]); // Estado para almacenar todos los lotes
   const [contract, setContract] = useState(null);
 
+
   useEffect(() => {
     const checkWalletConnection = async () => {
       if (window.ethereum) {
@@ -118,8 +119,10 @@ export default function CoffeeLotTable() {
     checkWalletConnection();
   }, []);
 
+
   const initializeContract = async (provider) => {
     const signer = await provider.getSigner();
+
     const contract = new ethers.Contract(
       contractAddress,
       CoffeeSupplyChain.abi,
