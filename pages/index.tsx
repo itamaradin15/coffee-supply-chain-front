@@ -92,13 +92,15 @@ export default function CoffeeLotTable() {
     altitud: '',
     cantidad: ''
   });
+
+  // @ts-ignore
   const handleInputChange = (field, value) => {
     setSelectedLot(prev => ({
       ...prev,
       [field]: value
     }));
   };
-  
+
 
   useEffect(() => {
     const checkWalletConnection = async () => {
