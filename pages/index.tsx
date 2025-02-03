@@ -119,10 +119,9 @@ export default function CoffeeLotTable() {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const accounts = await provider.listAccounts();
 
-        console.log("Cuentas", accounts);
         if (accounts.length > 0) {
           // Asegúrate de que `account` sea un string (la dirección de la cartera)
-          setAccount(accounts[0]); // Extrae la dirección del objeto
+         // setAccount(accounts[0]); // Extrae la dirección del objeto
           setIsWalletConnected(true);
           initializeContract(provider);
         }
