@@ -122,7 +122,7 @@ export default function CoffeeLotTable() {
         console.log("Cuentas", accounts);
         if (accounts.length > 0) {
           // Asegúrate de que `account` sea un string (la dirección de la cartera)
-          setAccount(accounts[0].address); // Extrae la dirección del objeto
+          setAccount(accounts[0]); // Extrae la dirección del objeto
           setIsWalletConnected(true);
           initializeContract(provider);
         }
