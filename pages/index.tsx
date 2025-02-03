@@ -169,7 +169,31 @@ export default function CoffeeLotTable() {
   };
 
   // Función para obtener todos los lotes
-
+  const sampleProcessingData = {
+    harvestMethod: "Manual Selectivo",
+    harvestedQuantity: "1500 kg",
+    processing: {
+      pulpingMethod: "Despulpado mecánico",
+      fermentationMethod: "Fermentación natural",
+      dryingMethod: "Secado al sol en camas africanas",
+      millingMethod: "Trilla mecánica"
+    },
+    quality: {
+      sortingMethod: "Selección manual y electrónica",
+      selectionCriteria: "Menos de 5 defectos por 300g",
+      defectsRemoved: "Granos negros, inmaduros y dañados",
+      finalMoisture: "10.5%",
+      packagingType: "Sacos de yute"
+    }
+  };
+  
+  const sampleSustainabilityData = {
+    familiesBenefited: "25 familias",
+    biodiversityConservation: "Preservación de especies nativas",
+    cultivationTechniques: "Cultivo bajo sombra, orgánico",
+    waterManagement: "Sistema de tratamiento de aguas mieles"
+  };
+  
   const generateLotId = () => {
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
@@ -181,23 +205,23 @@ export default function CoffeeLotTable() {
   const handleCreateLot = async () => {
     if (contract) {
       try {
-
-        console.log(selectedLot)
-        return 
+    
         setLoading(true); // Mostrar el spinner
         const lotId = generateLotId();
         const mainData = {
-          farmerName: "Juana Reyes",
-          farmLocation: "Aragua, Venezuela",
-          lotWeight: "1500 kg"
+          farmerName: selectedLot.caficultor,
+          farmLocation: selectedLot.origen,
+          lotWeight: selectedLot.cantidad
         };
-  
+        console.log("Datos del lote:", mainData); 
         // Estima el gas necesario
         const gasEstimate = await contract.createLot.estimateGas(
           lotId,
           mainData.farmerName,
           mainData.farmLocation,
-          mainData.lotWeight
+          mainData.lotWeight,
+          sampleProcessingData,
+          sampleSustainabilityData
         );
   
         console.log("Gas estimado:", gasEstimate.toString());
@@ -208,6 +232,8 @@ export default function CoffeeLotTable() {
           mainData.farmerName,
           mainData.farmLocation,
           mainData.lotWeight,
+          sampleProcessingData,
+          sampleSustainabilityData,
           { gasLimit: gasEstimate * 2n }
         );
   
@@ -231,18 +257,24 @@ export default function CoffeeLotTable() {
     try {
       const lots = await contract.getAllLotsInfo();
       console.log("Lotes:", lots);
-      const mappedlots = lots.map((lot) => ({
-        lote: lot[0],
-        producto: lot[1],
-        origen: lot[2],
-        caficultor: lot[3],
-        variedad: lot[4],
-        altitud: "1,200 - 1,500 msnm",
-        fechaProcesamiento: "Febrero 2025",
-        fermentacionSecado: "24 horas de fermentación, 15 días de secado",
-        fechaCosecha: "16 Enero 2025",
-        cantidad: `44 kg`,
-      }));
+      const mappedlots = lots.map((lot) => {
+        //convert to array
+        if (Object.values(lot).length > 0) {
+          console.log('values,',Object.values(lot))
+          return {
+            lote: lot[0],
+            producto: lot[1],
+            origen: lot[2],
+            caficultor: lot[3],
+            variedad: lot[4],
+            altitud: "1,200 - 1,500 msnm",
+            fechaProcesamiento: "Febrero 2025",
+            fermentacionSecado: "24 horas de fermentación, 15 días de secado",
+            fechaCosecha: "16 Enero 2025",
+            cantidad: `44 kg`,
+          }
+        }
+      });
 
       setAllLots(mappedlots);
     } catch (error) {
