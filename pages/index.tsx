@@ -74,6 +74,17 @@ const SearchIcon = () => (
   </svg>
 );
 
+type Lot = {
+  lote: string;
+  producto: string;
+  origen: string;
+  caficultor: string;
+  variedad: string;
+  altitud: string;
+  cantidad: string;
+};
+
+
 export default function CoffeeLotTable() {
   const [loading, setLoading] = useState(false);
   const [islotCreated, setIslotCreated] = useState(false);
@@ -92,14 +103,14 @@ export default function CoffeeLotTable() {
     altitud: '',
     cantidad: ''
   });
-
-  // @ts-ignore
-  const handleInputChange = (field, value) => {
+  
+  const handleInputChange = (field: keyof Lot, value: string) => {
     setSelectedLot(prev => ({
       ...prev,
       [field]: value
     }));
   };
+
 
 
   useEffect(() => {
