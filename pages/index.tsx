@@ -124,7 +124,7 @@ export default function CoffeeLotTable() {
   const [isWalletConnected, setIsWalletConnected] = useState(false); // Estado para verificar si la wallet está conectada
   const [allLots, setAllLots] = useState([]); // Estado para almacenar todos los lotes
   const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [dateFarm, setDateFarm] = React.useState();
+  const [dateFarm] = React.useState();
   const [selectedLot, setSelectedLot] = useState({
     lote: "",
     producto: "",
@@ -220,7 +220,7 @@ export default function CoffeeLotTable() {
 
   // Función para obtener todos los lotes
   const sampleProcessingData = {
-    harvestMethod: "Manual Selectivo",
+    harvestMethod: "Manual Selectivo v3",
     harvestedQuantity: "1500 kg",
     processing: {
       pulpingMethod: "Despulpado mecánico",
@@ -263,8 +263,6 @@ export default function CoffeeLotTable() {
     alert("add fermentacion");
   };
 
-  const handleDespulpadoLot = async () => {};
-
   const handleCreateLot = async () => {
     if (contract) {
       try {
@@ -301,6 +299,48 @@ export default function CoffeeLotTable() {
           selectedLot.altitud,
           selectedLot.method,
           dateFormated,
+          sampleProcessingData,
+          sampleSustainabilityData,
+          { gasLimit: gasEstimate * BigInt(1) },
+        );
+
+        // Espera a que la transacción sea minada
+        await tx.wait();
+
+        setIslotCreated(true); // Mostrar el spinner
+
+        fetchAllLots(contract);
+      } catch (error) {
+        setOnErrorStatus(true);
+        if (error instanceof Error) {
+          setOnErrorMessage(error.message);
+        } else {
+          setOnErrorMessage("An unknown error occurred");
+        }
+      } finally {
+        setLoading(false); // Ocultar el spinner al finalizar
+      }
+    }
+  };
+
+  const updateLotData = async () => {
+    if (contract) {
+      try {
+        setLoading(true); // Mostrar el spinner
+        const lotId = "LOT2502679";
+        // Estima el gas necesario
+        const gasEstimate = await contract.updateLotData.estimateGas(
+          lotId,
+          sampleProcessingData,
+          sampleSustainabilityData,
+        );
+
+        // console.log(gasEstimate, lotId, sampleProcessingData, sampleSustainabilityData);
+        // return 
+
+        // Envía la transacción con un límite de gas mayor
+        const tx = await contract.updateLotData(
+          lotId,
           sampleProcessingData,
           sampleSustainabilityData,
           { gasLimit: gasEstimate * BigInt(1) },
@@ -371,7 +411,7 @@ export default function CoffeeLotTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(30);
   const [page, setPage] = React.useState(1);
   //@ts-ignore
-  const [sortDescriptor, setSortDescriptor] = React.useState({
+  const [sortDescriptor] = React.useState({
     column: "lote",
     direction: "ascending",
   });
@@ -825,7 +865,7 @@ export default function CoffeeLotTable() {
                       color="success"
                       disabled={loading}
                       variant="flat"
-                      onPress={handleDespulpadoLot}
+                      onPress={updateLotData}
                     >
                       {loading ? "Creando..." : "Registrar despulpado"}
                     </Button>
