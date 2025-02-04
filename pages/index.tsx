@@ -3,6 +3,8 @@ import { ethers } from "ethers"; // Importa ethers
 import { Spinner } from "@heroui/spinner";
 import { Alert } from "@heroui/alert";
 import { CSSProperties } from "react";
+import { DatePicker } from "@heroui/date-picker";
+
 import {
   Table,
   TableHeader,
@@ -35,18 +37,18 @@ import DefaultLayout from "@/layouts/default";
 
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
 
+
 const columns = [
   { name: "LOTE", uid: "lote", sortable: true },
-  { name: "PRODUCTO", uid: "producto", sortable: true },
-  { name: "ORIGEN", uid: "origen", sortable: true },
   { name: "CAFICULTOR", uid: "caficultor", sortable: true },
+  { name: "ORIGEN", uid: "origen", sortable: true },
+  { name: "TAM. GRANJA", uid: "farmSize", sortable: true },
+  { name: "CANTIDAD", uid: "cantidad", sortable: true },
   { name: "VARIEDAD", uid: "variedad" },
   { name: "ALTITUD", uid: "altitud" },
+  { name: "METODO DE COCECHADO", uid: "harvestingMethod", sortable: true },
   { name: "ACCIONES", uid: "actions" },
-  { name: "FECHA PROC.", uid: "fechaProcesamiento" },
-  { name: "FERM. Y SECADO", uid: "fermentacionSecado" },
   { name: "FECHA COSECHA", uid: "fechaCosecha" },
-  { name: "CANTIDAD", uid: "cantidad", sortable: true },
 ];
 
 // Show only first 6 columns by default
@@ -84,9 +86,38 @@ type Lot = {
   variedad: string;
   altitud: string;
   cantidad: string;
+  farmSize: string;
+  method: string;
+};
+
+type Despulpado = {
+  clasification: string;
+  cristerios: string;
+  porcentaje: string;
+};
+
+export const VerticalDotsIcon = ({size = 24, width, height, ...props}) => {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      focusable="false"
+      height={size || height}
+      role="presentation"
+      viewBox="0 0 24 24"
+      width={size || width}
+      {...props}
+    >
+      <path
+        d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+        fill="currentColor"
+      />
+    </svg>
+  );
 };
 
 export default function CoffeeLotTable() {
+  const [isOpenDespulpado, onOpenDespulpado ] = useState(false);
   const [loading, setLoading] = useState(false);
   const [islotCreated, setIslotCreated] = useState(false);
   const [onErrorStatus, setOnErrorStatus] = useState(false);
@@ -95,6 +126,7 @@ export default function CoffeeLotTable() {
   const [isWalletConnected, setIsWalletConnected] = useState(false); // Estado para verificar si la wallet está conectada
   const [allLots, setAllLots] = useState([]); // Estado para almacenar todos los lotes
   const [contract, setContract] = useState<ethers.Contract | null>(null);
+  const [dateFarm, setDateFarm] = React.useState();
   const [selectedLot, setSelectedLot] = useState({
     lote: "",
     producto: "",
@@ -103,6 +135,15 @@ export default function CoffeeLotTable() {
     variedad: "",
     altitud: "",
     cantidad: "",
+    fecha: "",
+    farmSize: "",
+    method: "",
+  });
+
+  const [despulpadoLot, setDespulpadoLot] = useState({
+    clasification: "",
+    cristerios: "",
+    porcentaje: "",
   });
 
   const handleInputChange = (field: keyof Lot, value: string) => {
@@ -111,6 +152,14 @@ export default function CoffeeLotTable() {
       [field]: value,
     }));
   };
+
+  const handleInputChangeDespulpado = (field: keyof Despulpado, value: string) => {
+    setDespulpadoLot((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
 
   useEffect(() => {
     const checkWalletConnection = async () => {
@@ -206,23 +255,41 @@ export default function CoffeeLotTable() {
     return `LOT${year}${month}${random}`;
   };
 
+
+  const addDespulpado = async (user) => {
+   onOpenDespulpado(true)
+  }
+
+
+  const addFermentacion = async () => {
+    alert('add fermentacion')
+  }
+
+  const handleDespulpadoLot = async () => {
+    console.log(despulpadoLot)
+  }
+
   const handleCreateLot = async () => {
     if (contract) {
       try {
         setLoading(true); // Mostrar el spinner
         const lotId = generateLotId();
-        const mainData = {
-          farmerName: selectedLot.caficultor,
-          farmLocation: selectedLot.origen,
-          lotWeight: selectedLot.cantidad,
-        };
+
+        const dateFormated = dateFarm
+          ? `${dateFarm["year"]}-${dateFarm["month"]}-${dateFarm["day"]}`
+          : "";
 
         // Estima el gas necesario
         const gasEstimate = await contract.createLot.estimateGas(
           lotId,
-          mainData.farmerName,
-          mainData.farmLocation,
-          mainData.lotWeight,
+          selectedLot.caficultor,
+          selectedLot.origen,
+          selectedLot.farmSize,
+          selectedLot.cantidad,
+          selectedLot.variedad,
+          selectedLot.altitud,
+          selectedLot.method,
+          dateFormated,
           sampleProcessingData,
           sampleSustainabilityData,
         );
@@ -230,12 +297,17 @@ export default function CoffeeLotTable() {
         // Envía la transacción con un límite de gas mayor
         const tx = await contract.createLot(
           lotId,
-          mainData.farmerName,
-          mainData.farmLocation,
-          mainData.lotWeight,
+          selectedLot.caficultor,
+          selectedLot.origen,
+          selectedLot.farmSize,
+          selectedLot.cantidad,
+          selectedLot.variedad,
+          selectedLot.altitud,
+          selectedLot.method,
+          dateFormated,
           sampleProcessingData,
           sampleSustainabilityData,
-          { gasLimit: gasEstimate * BigInt(2) },
+          { gasLimit: gasEstimate * BigInt(1) },
         );
 
         // Espera a que la transacción sea minada
@@ -261,19 +333,19 @@ export default function CoffeeLotTable() {
     try {
       const lots = await contract.getAllLotsInfo();
       const mappedlots = lots.map((lot) => {
+        console.log(lot);
         //convert to array
         if (Object.values(lot).length > 0) {
           return {
             lote: lot[0],
-            producto: lot[1],
+            caficultor: lot[1],
             origen: lot[2],
-            caficultor: lot[3],
-            variedad: lot[4],
-            altitud: "1,200 - 1,500 msnm",
-            fechaProcesamiento: "Febrero 2025",
-            fermentacionSecado: "24 horas de fermentación, 15 días de secado",
-            fechaCosecha: "16 Enero 2025",
-            cantidad: `44 kg`,
+            variedad: lot[5],
+            altitud: lot[6],
+            fechaCosecha: lot[8],
+            harvestingMethod: lot[7],
+            farmSize: lot[3],
+            cantidad: [9],
           };
         }
       });
@@ -374,6 +446,36 @@ export default function CoffeeLotTable() {
     }
   }, []);
 
+  const renderCell = React.useCallback((user, columnKey) => {
+    const cellValue = user[columnKey];
+
+    switch (columnKey) {
+      case "actions":
+        return (
+          <div className="relative flex justify-end items-center gap-2">
+            <Dropdown className="bg-background border-1 border-default-200">
+              <DropdownTrigger>
+                <Button isIconOnly radius="full" size="sm" variant="light">
+                  <VerticalDotsIcon className="text-default-400" />
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu>
+                <DropdownItem key="view" onPress={addDespulpado}>Agregar Despulpado</DropdownItem>
+                <DropdownItem key="edit" onPress={addFermentacion}>Agregar Fermentacion</DropdownItem>
+                <DropdownItem key="delete">Agregar Lavado</DropdownItem>
+                <DropdownItem key="secado">Agregar Secado</DropdownItem>
+                <DropdownItem key="trillado">Agregar Trillado</DropdownItem>
+                <DropdownItem key="empaque">Agregar Empaque</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+        );
+      default:
+        return cellValue;
+    }
+  }, []);
+
+
   const onRowsPerPageChange = React.useCallback((e) => {
     setRowsPerPage(Number(e.target.value));
     setPage(1);
@@ -399,7 +501,7 @@ export default function CoffeeLotTable() {
           />
           <div className="flex gap-3">
             <Button color="success" variant="flat" onPress={onOpen}>
-              Crear Lote
+              Registrar Lote
             </Button>
             <Dropdown>
               <DropdownTrigger className="hidden sm:flex">
@@ -480,8 +582,6 @@ export default function CoffeeLotTable() {
     );
   }, [page, pages, onPreviousPage, onNextPage]);
 
-  // const {isOpen, onOpen, onOpenChange} = useDisclosure();
-
   if (!isWalletConnected) {
     return (
       <div style={styles.banner}>
@@ -518,7 +618,7 @@ export default function CoffeeLotTable() {
         <TableBody emptyContent={"No se encontraron lotes"} items={sortedItems}>
           {(item: Lot) => (
             <TableRow key={item.lote}>
-              {(columnKey) => <TableCell>{item[columnKey]}</TableCell>}
+              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
             </TableRow>
           )}
         </TableBody>
@@ -534,31 +634,7 @@ export default function CoffeeLotTable() {
                 {!islotCreated && (
                   <>
                     <Input
-                      label="Lote"
-                      value={selectedLot.lote}
-                      variant="bordered"
-                      onChange={(e) =>
-                        handleInputChange("lote", e.target.value)
-                      }
-                    />
-                    <Input
-                      label="Producto"
-                      value={selectedLot.producto}
-                      variant="bordered"
-                      onChange={(e) =>
-                        handleInputChange("producto", e.target.value)
-                      }
-                    />
-                    <Input
-                      label="Origen"
-                      value={selectedLot.origen}
-                      variant="bordered"
-                      onChange={(e) =>
-                        handleInputChange("origen", e.target.value)
-                      }
-                    />
-                    <Input
-                      label="Caficultor"
+                      label="Nombre del caficultor o cooperativa"
                       value={selectedLot.caficultor}
                       variant="bordered"
                       onChange={(e) =>
@@ -566,15 +642,15 @@ export default function CoffeeLotTable() {
                       }
                     />
                     <Input
-                      label="Variedad"
-                      value={selectedLot.variedad}
+                      label="Ubicación de la finca:"
+                      value={selectedLot.origen}
                       variant="bordered"
                       onChange={(e) =>
-                        handleInputChange("variedad", e.target.value)
+                        handleInputChange("origen", e.target.value)
                       }
                     />
                     <Input
-                      label="Altitud"
+                      label="Altitud de cultivos"
                       value={selectedLot.altitud}
                       variant="bordered"
                       onChange={(e) =>
@@ -582,11 +658,40 @@ export default function CoffeeLotTable() {
                       }
                     />
                     <Input
-                      label="Cantidad"
+                      label="Variedad cultivada"
+                      value={selectedLot.variedad}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChange("variedad", e.target.value)
+                      }
+                    />
+                    <DatePicker
+                      label="Fecha de Cosecha"
+                      value={dateFarm}
+                      onChange={setDateFarm}
+                    />
+                    <Input
+                      label="Cantidad cosechada"
                       value={selectedLot.cantidad}
                       variant="bordered"
                       onChange={(e) =>
                         handleInputChange("cantidad", e.target.value)
+                      }
+                    />
+                    <Input
+                      label="Tamaño de la finca"
+                      value={selectedLot.farmSize}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChange("farmSize", e.target.value)
+                      }
+                    />
+                    <Input
+                      label="Método de cosecha"
+                      value={selectedLot.method}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChange("method", e.target.value)
                       }
                     />
                   </>
@@ -627,7 +732,89 @@ export default function CoffeeLotTable() {
                       variant="flat"
                       onPress={handleCreateLot}
                     >
-                      {loading ? "Creando..." : "Crear nuevo lote"}
+                      {loading ? "Creando..." : "Registrar nuevo lote"}
+                    </Button>
+                    {loading && <Spinner />}
+                  </div>
+                )}
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isOpenDespulpado} placement="top-center" onOpenChange={onOpenDespulpado}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+               Agregar Despulpado
+              </ModalHeader>
+              <ModalBody>
+                {!islotCreated && (
+                  <>
+                    <Input
+                      label="Método de clasificación:"
+                      value={despulpadoLot.clasification}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChangeDespulpado("clasification", e.target.value)
+                      }
+                    />
+                    <Input
+                      label="Criterios de selección:"
+                      value={despulpadoLot.cristerios}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChangeDespulpado("cristerios", e.target.value)
+                      }
+                    />
+                     <Input
+                      label="Porcentaje de defectos eliminados:"
+                      value={despulpadoLot.porcentaje}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChangeDespulpado("porcentaje", e.target.value)
+                      }
+                    />
+                  </>
+                )}
+
+                {islotCreated && (
+                  <div className="flex items-center justify-center w-full">
+                    <Alert
+                      hideIcon
+                      color="success"
+                      description="El lote ha sido creado exitosamente"
+                      title="Lote creado con éxito."
+                      variant="faded"
+                    />
+                  </div>
+                )}
+                {onErrorStatus && (
+                  <div className="flex items-center justify-center w-full">
+                    <Alert
+                      hideIcon
+                      color="danger"
+                      title={onErrorMessage}
+                      variant="faded"
+                    />
+                  </div>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="flat" onPress={onClose}>
+                  Cerrar
+                </Button>
+
+                {!islotCreated && (
+                  <div className="flex flex-col items-center gap-4">
+                    <Button
+                      color="success"
+                      disabled={loading}
+                      variant="flat"
+                      onPress={handleDespulpadoLot}
+                    >
+                      {loading ? "Creando..." : "Registrar despulpado"}
                     </Button>
                     {loading && <Spinner />}
                   </div>
