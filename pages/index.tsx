@@ -4,7 +4,6 @@ import { Spinner } from "@heroui/spinner";
 import { Alert } from "@heroui/alert";
 import { CSSProperties } from "react";
 import { DatePicker } from "@heroui/date-picker";
-
 import {
   Table,
   TableHeader,
@@ -36,7 +35,6 @@ import CoffeeSupplyChain from "./CoffeeSupplyChain.json";
 import DefaultLayout from "@/layouts/default";
 
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
-
 
 const columns = [
   { name: "LOTE", uid: "lote", sortable: true },
@@ -96,7 +94,7 @@ type Despulpado = {
   porcentaje: string;
 };
 
-export const VerticalDotsIcon = ({size = 24, width, height, ...props}) => {
+export const VerticalDotsIcon = ({ size = 24, width, height, ...props }) => {
   return (
     <svg
       aria-hidden="true"
@@ -117,7 +115,7 @@ export const VerticalDotsIcon = ({size = 24, width, height, ...props}) => {
 };
 
 export default function CoffeeLotTable() {
-  const [isOpenDespulpado, onOpenDespulpado ] = useState(false);
+  const [isOpenDespulpado, onOpenDespulpado] = useState(false);
   const [loading, setLoading] = useState(false);
   const [islotCreated, setIslotCreated] = useState(false);
   const [onErrorStatus, setOnErrorStatus] = useState(false);
@@ -153,13 +151,15 @@ export default function CoffeeLotTable() {
     }));
   };
 
-  const handleInputChangeDespulpado = (field: keyof Despulpado, value: string) => {
+  const handleInputChangeDespulpado = (
+    field: keyof Despulpado,
+    value: string,
+  ) => {
     setDespulpadoLot((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
-
 
   useEffect(() => {
     const checkWalletConnection = async () => {
@@ -255,19 +255,15 @@ export default function CoffeeLotTable() {
     return `LOT${year}${month}${random}`;
   };
 
-
-  const addDespulpado = async (user) => {
-   onOpenDespulpado(true)
-  }
-
+  const addDespulpado = async () => {
+    onOpenDespulpado(true);
+  };
 
   const addFermentacion = async () => {
-    alert('add fermentacion')
-  }
+    alert("add fermentacion");
+  };
 
-  const handleDespulpadoLot = async () => {
-    console.log(despulpadoLot)
-  }
+  const handleDespulpadoLot = async () => {};
 
   const handleCreateLot = async () => {
     if (contract) {
@@ -333,7 +329,6 @@ export default function CoffeeLotTable() {
     try {
       const lots = await contract.getAllLotsInfo();
       const mappedlots = lots.map((lot) => {
-        console.log(lot);
         //convert to array
         if (Object.values(lot).length > 0) {
           return {
@@ -456,12 +451,20 @@ export default function CoffeeLotTable() {
             <Dropdown className="bg-background border-1 border-default-200">
               <DropdownTrigger>
                 <Button isIconOnly radius="full" size="sm" variant="light">
-                  <VerticalDotsIcon className="text-default-400" />
+                  <VerticalDotsIcon
+                    className="text-default-400"
+                    height={30}
+                    width={30}
+                  />
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                <DropdownItem key="view" onPress={addDespulpado}>Agregar Despulpado</DropdownItem>
-                <DropdownItem key="edit" onPress={addFermentacion}>Agregar Fermentacion</DropdownItem>
+                <DropdownItem key="view" onPress={addDespulpado}>
+                  Agregar Despulpado
+                </DropdownItem>
+                <DropdownItem key="edit" onPress={addFermentacion}>
+                  Agregar Fermentacion
+                </DropdownItem>
                 <DropdownItem key="delete">Agregar Lavado</DropdownItem>
                 <DropdownItem key="secado">Agregar Secado</DropdownItem>
                 <DropdownItem key="trillado">Agregar Trillado</DropdownItem>
@@ -474,7 +477,6 @@ export default function CoffeeLotTable() {
         return cellValue;
     }
   }, []);
-
 
   const onRowsPerPageChange = React.useCallback((e) => {
     setRowsPerPage(Number(e.target.value));
@@ -618,7 +620,9 @@ export default function CoffeeLotTable() {
         <TableBody emptyContent={"No se encontraron lotes"} items={sortedItems}>
           {(item: Lot) => (
             <TableRow key={item.lote}>
-              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+              {(columnKey) => (
+                <TableCell>{renderCell(item, columnKey)}</TableCell>
+              )}
             </TableRow>
           )}
         </TableBody>
@@ -665,11 +669,7 @@ export default function CoffeeLotTable() {
                         handleInputChange("variedad", e.target.value)
                       }
                     />
-                    <DatePicker
-                      label="Fecha de Cosecha"
-                      value={dateFarm}
-                      onChange={setDateFarm}
-                    />
+                    <DatePicker label="Fecha de Cosecha" value={dateFarm} />
                     <Input
                       label="Cantidad cosechada"
                       value={selectedLot.cantidad}
@@ -742,12 +742,16 @@ export default function CoffeeLotTable() {
           )}
         </ModalContent>
       </Modal>
-      <Modal isOpen={isOpenDespulpado} placement="top-center" onOpenChange={onOpenDespulpado}>
+      <Modal
+        isOpen={isOpenDespulpado}
+        placement="top-center"
+        onOpenChange={onOpenDespulpado}
+      >
         <ModalContent>
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-               Agregar Despulpado
+                Agregar Despulpado
               </ModalHeader>
               <ModalBody>
                 {!islotCreated && (
@@ -757,7 +761,10 @@ export default function CoffeeLotTable() {
                       value={despulpadoLot.clasification}
                       variant="bordered"
                       onChange={(e) =>
-                        handleInputChangeDespulpado("clasification", e.target.value)
+                        handleInputChangeDespulpado(
+                          "clasification",
+                          e.target.value,
+                        )
                       }
                     />
                     <Input
@@ -765,15 +772,21 @@ export default function CoffeeLotTable() {
                       value={despulpadoLot.cristerios}
                       variant="bordered"
                       onChange={(e) =>
-                        handleInputChangeDespulpado("cristerios", e.target.value)
+                        handleInputChangeDespulpado(
+                          "cristerios",
+                          e.target.value,
+                        )
                       }
                     />
-                     <Input
+                    <Input
                       label="Porcentaje de defectos eliminados:"
                       value={despulpadoLot.porcentaje}
                       variant="bordered"
                       onChange={(e) =>
-                        handleInputChangeDespulpado("porcentaje", e.target.value)
+                        handleInputChangeDespulpado(
+                          "porcentaje",
+                          e.target.value,
+                        )
                       }
                     />
                   </>
