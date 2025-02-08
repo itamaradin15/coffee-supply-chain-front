@@ -1,135 +1,81 @@
-<div class="search-container">
-    <input type="text" id="loteSearch" placeholder="Ingrese número de lote">
-    <button id="searchButton">Buscar</button>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento de Lote</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+
+<div id="app">
+    <div class="search-container">
+        <input type="text" v-model="loteSearch" placeholder="Ingrese número de lote">
+        <button @click="buscarLote">Buscar</button>
+    </div>
+
+    <ul class="timeline" v-if="mostrarTimeline">
+        <li v-for="(evento, index) in eventos" :key="index">
+            <div :class="index % 2 === 0 ? 'direction-r' : 'direction-l'">
+                <div class="flag-wrapper">
+                    <span class="hexa"></span>
+                    <span class="flag">{{ evento.titulo }}</span>
+                    <span class="time-wrapper"><span class="time">{{ evento.fecha }}</span></span>
+                </div>
+                <div class="desc" v-html="evento.descripcion"></div>
+            </div>
+        </li>
+    </ul>
 </div>
 
-<ul class="timeline" id="timeline" style="display: none;">
-  <!-- Item 1 -->
-  <li>
-    <div class="direction-r">
-      <div class="flag-wrapper">
-        <span class="hexa"></span>
-        <span class="flag">Registro del Caficultor</span>
-        <span class="time-wrapper"><span class="time">Enero 2025</span></span>
-      </div>
-      <div class="desc">Nombre: Juan Pérez<br>Ubicación: Chanchamayo, Junín, Perú<br>Variedades: Typica, Bourbon, Caturra<br>Altitud: 1,200 - 1,800 msnm<br>Cosecha: 500 kg de café pergamino por temporada<br>Método de cosecha: Recolección manual<br>Tamaño de la finca: 5 hectáreas</div>
-    </div>
-  </li>
-
-  <!-- Item 2 -->
-  <li>
-    <div class="direction-l">
-      <div class="flag-wrapper">
-        <span class="hexa"></span>
-        <span class="flag">Despulpado</span>
-        <span class="time-wrapper"><span class="time">11 Enero 2025</span></span>
-      </div>
-      <div class="desc">Método de despulpado: Mecánico<br>Cantidad de pulpa retirada: 200 kg<br>Destino de la pulpa: Compostaje para regenerar suelo</div>
-    </div>
-  </li>
-
-  <!-- Item 3 -->
-  <li>
-    <div class="direction-r">
-      <div class="flag-wrapper">
-        <span class="hexa"></span>
-        <span class="flag">Fermentación</span>
-        <span class="time-wrapper"><span class="time">12 Enero 2025</span></span>
-      </div>
-      <div class="desc">Duración: 24 horas<br>Temperatura: 18°C<br>Método: Lavado (húmedo)</div>
-    </div>
-  </li>
-
-  <!-- Item 4 -->
-  <li>
-    <div class="direction-l">
-      <div class="flag-wrapper">
-        <span class="hexa"></span>
-        <span class="flag">Lavado</span>
-        <span class="time-wrapper"><span class="time">13 Enero 2025</span></span>
-      </div>
-      <div class="desc">Volumen de agua utilizada: 1,000 litros<br>Método de reciclaje de agua: Reutilización para riego<br>Cantidad de agua reutilizada: 60%</div>
-    </div>
-  </li>
-
-  <!-- Item 5 -->
-  <li>
-    <div class="direction-r">
-      <div class="flag-wrapper">
-        <span class="hexa"></span>
-        <span class="flag">Secado</span>
-        <span class="time-wrapper"><span class="time">14-20 Enero 2025</span></span>
-      </div>
-      <div class="desc">Método de secado: Solar<br>Tiempo de secado: 7 días<br>Humedad final del grano: 11%</div>
-    </div>
-  </li>
-
-  <!-- Item 6 -->
-  <li>
-    <div class="direction-l">
-      <div class="flag-wrapper">
-        <span class="hexa"></span>
-        <span class="flag">Trillado</span>
-        <span class="time-wrapper"><span class="time">1 Febrero 2025</span></span>
-      </div>
-      <div class="desc">Cantidad de café trillado: 450 kg<br>Método de trillado: Mecánico</div>
-    </div>
-  </li>
-
-  <!-- Item 7 -->
-  <li>
-    <div class="direction-r">
-      <div class="flag-wrapper">
-        <span class="hexa"></span>
-        <span class="flag">Clasificación del Grano</span>
-        <span class="time-wrapper"><span class="time">2 Febrero 2025</span></span>
-      </div>
-      <div class="desc">Método de clasificación: Manual<br>Criterios de selección: Tamaño, color y densidad<br>Porcentaje de defectos eliminados: 5%</div>
-    </div>
-  </li>
-
-  <!-- Item 8 -->
-  <li>
-    <div class="direction-l">
-      <div class="flag-wrapper">
-        <span class="hexa"></span>
-        <span class="flag">Empaque</span>
-        <span class="time-wrapper"><span class="time">3 Febrero 2025</span></span>
-      </div>
-      <div class="desc">Tipo de empaque: Sacos de yute biodegradables<br>Peso del lote: 450 kg<br>Familias beneficiadas: 15 familias locales<br>Conservación de la biodiversidad: Preservación de 20 especies de árboles nativos</div>
-    </div>
-  </li>
-</ul>
-
 <script>
-  function getParameterByName(name) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
-  }
+const { createApp } = Vue;
 
-  document.getElementById('searchButton').addEventListener('click', function() {
-    var input = document.getElementById('loteSearch').value.trim();
-    var timeline = document.getElementById('timeline');
-
-        if (input !== '') {
-            fetch('https://backoffice.brioperu.com/api/hello')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Response:', data);
-                    timeline.style.display = 'block';
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        } else {
-            timeline.style.display = 'none';
-            alert('Por favor, ingrese el número de lote.');
+createApp({
+    data() {
+        return {
+            loteSearch: '',
+            mostrarTimeline: false,
+            eventos: [
+                { titulo: "Registro del Caficultor", fecha: "Enero 2025", descripcion: "Nombre: Juan Pérez<br>Ubicación: Chanchamayo, Junín, Perú<br>Variedades: Typica, Bourbon, Caturra<br>Altitud: 1,200 - 1,800 msnm<br>Cosecha: 500 kg de café pergamino por temporada<br>Método de cosecha: Recolección manual<br>Tamaño de la finca: 5 hectáreas" },
+                { titulo: "Despulpado", fecha: "11 Enero 2025", descripcion: "Método de despulpado: Mecánico<br>Cantidad de pulpa retirada: 200 kg<br>Destino de la pulpa: Compostaje para regenerar suelo" },
+                { titulo: "Fermentación", fecha: "12 Enero 2025", descripcion: "Duración: 24 horas<br>Temperatura: 18°C<br>Método: Lavado (húmedo)" },
+                { titulo: "Lavado", fecha: "13 Enero 2025", descripcion: "Volumen de agua utilizada: 1,000 litros<br>Método de reciclaje de agua: Reutilización para riego<br>Cantidad de agua reutilizada: 60%" },
+                { titulo: "Secado", fecha: "14-20 Enero 2025", descripcion: "Método de secado: Solar<br>Tiempo de secado: 7 días<br>Humedad final del grano: 11%" },
+                { titulo: "Trillado", fecha: "1 Febrero 2025", descripcion: "Cantidad de café trillado: 450 kg<br>Método de trillado: Mecánico" },
+                { titulo: "Clasificación del Grano", fecha: "2 Febrero 2025", descripcion: "Método de clasificación: Manual<br>Criterios de selección: Tamaño, color y densidad<br>Porcentaje de defectos eliminados: 5%" },
+                { titulo: "Empaque", fecha: "3 Febrero 2025", descripcion: "Tipo de empaque: Sacos de yute biodegradables<br>Peso del lote: 450 kg<br>Familias beneficiadas: 15 familias locales<br>Conservación de la biodiversidad: Preservación de 20 especies de árboles nativos" }
+            ]
+        };
+    },
+    methods: {
+        buscarLote() {
+            if (this.loteSearch.trim() !== '') {
+                fetch('https://backoffice.brioperu.com/api/lots?lot='+this.loteSearch)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Response:', data);
+                        this.mostrarTimeline = true;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                    });
+            } else {
+                this.mostrarTimeline = false;
+                alert('Por favor, ingrese el número de lote.');
+            }
         }
-    });
-
-  const loteParam = getParameterByName('lote');
-  if (loteParam) {
-    document.getElementById('loteSearch').value = loteParam;
-    document.getElementById('timeline').style.display = 'block';
-  }
+    },
+    mounted() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const loteParam = urlParams.get('lote');
+        if (loteParam) {
+            this.loteSearch = loteParam;
+            this.mostrarTimeline = true;
+        }
+    }
+}).mount('#app');
 </script>
+
+</body>
+</html>
