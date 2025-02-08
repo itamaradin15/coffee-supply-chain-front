@@ -30,7 +30,7 @@ import {
   useDisclosure,
 } from "@heroui/modal";
 
-import CoffeeSupplyChain from "./CoffeeSupplyChain.json";
+import CoffeeSupplyChain from "../contracts/CoffeeSupplyChain.json";
 
 import DefaultLayout from "@/layouts/default";
 
