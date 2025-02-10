@@ -462,9 +462,7 @@ export default function CoffeeLotTable() {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-              <DropdownItem key="modalCosecha" onPress={() => handleOpenCosechaModal(user.lote)}>
-                  Agregar Cosecha
-                </DropdownItem>
+            
                 <DropdownItem key="view" onPress={() => handleSelectLot(user.lote)}>
                   Agregar Despulpado
                 </DropdownItem>
@@ -477,13 +475,6 @@ export default function CoffeeLotTable() {
                 <DropdownItem key="modalImpacto" onPress={() => handleOpenImpactoModal(user.lote)}>
                 Agregar Impacto
                 </DropdownItem>
-
-                <DropdownItem key="edit" onPress={addFermentacion}>
-                  Agregar Fermentacion(falta)
-                </DropdownItem>
-                <DropdownItem key="delete">Agregar Lavado(falta)</DropdownItem>
-                <DropdownItem key="clasificacion">Agregar Clasificacion(falta)</DropdownItem>
-                <DropdownItem key="empaque">Agregar Empaque(falta)</DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>
