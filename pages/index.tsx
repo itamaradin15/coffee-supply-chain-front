@@ -33,6 +33,12 @@ import {
 import CoffeeSupplyChain from "../contracts/CoffeeSupplyChain.json";
 
 import DefaultLayout from "@/layouts/default";
+import DespulpadoModal from "./Components/DespulpadoModal ";
+import CosechaModal from "./Components/CosechaModal";
+import SecadoModal from "./Components/SecadoModal";
+import TrilladoModal from "./Components/TrilladoModal";
+import ImpactoModal from "./Components/ImpactoModal";
+
 
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
 
@@ -86,6 +92,7 @@ type Lot = {
   cantidad: string;
   farmSize: string;
   method: string;
+  fechaCosecha: string;
 };
 
 type Despulpado = {
@@ -115,7 +122,11 @@ export const VerticalDotsIcon = ({ size = 24, width, height, ...props }) => {
 };
 
 export default function CoffeeLotTable() {
-  const [isOpenDespulpado, onOpenDespulpado] = useState(false);
+  const [isOpenDespulpado, setIsOpenDespulpado] = useState(false);
+  const [isOpenCosecha, setIsOpenCosecha] = useState(false)
+  const [isOpenSecado, setIsOpenSecado] = useState(false);
+  const [isOpenTrillado, setIsOpenTrillado] = useState(false);
+  const [isOpenImpacto, setIsOpenImpacto] = useState(false);
   const [loading, setLoading] = useState(false);
   const [islotCreated, setIslotCreated] = useState(false);
   const [onErrorStatus, setOnErrorStatus] = useState(false);
@@ -124,7 +135,7 @@ export default function CoffeeLotTable() {
   const [isWalletConnected, setIsWalletConnected] = useState(false); // Estado para verificar si la wallet está conectada
   const [allLots, setAllLots] = useState([]); // Estado para almacenar todos los lotes
   const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [dateFarm] = React.useState();
+  const [lotId, setLotId] = useState<string | null>(null)
   const [selectedLot, setSelectedLot] = useState({
     lote: "",
     producto: "",
@@ -133,7 +144,7 @@ export default function CoffeeLotTable() {
     variedad: "",
     altitud: "",
     cantidad: "",
-    fecha: "",
+    fechaCosecha: "",
     farmSize: "",
     method: "",
   });
@@ -144,6 +155,29 @@ export default function CoffeeLotTable() {
     porcentaje: "",
   });
 
+  const handleOpenCosechaModal = (lotId) => {
+    setLotId(lotId),
+    setIsOpenCosecha(true)
+  }
+
+    // Función para abrir la modal de secado
+    const handleOpenSecadoModal = (lotId) => {
+      setSelectedLotId(lotId);
+      setIsOpenSecado(true);
+    };
+  
+    // Función para abrir la modal de trillado
+    const handleOpenTrilladoModal = (lotId) => {
+      setSelectedLotId(lotId);
+      setIsOpenTrillado(true);
+    };
+  
+    // Función para abrir la modal de impacto
+    const handleOpenImpactoModal = (lotId) => {
+      setSelectedLotId(lotId);
+      setIsOpenImpacto(true);
+    };
+
   const handleInputChange = (field: keyof Lot, value: string) => {
     setSelectedLot((prev) => ({
       ...prev,
@@ -151,15 +185,6 @@ export default function CoffeeLotTable() {
     }));
   };
 
-  const handleInputChangeDespulpado = (
-    field: keyof Despulpado,
-    value: string,
-  ) => {
-    setDespulpadoLot((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
 
   useEffect(() => {
     const checkWalletConnection = async () => {
@@ -218,32 +243,6 @@ export default function CoffeeLotTable() {
     }
   };
 
-  // Función para obtener todos los lotes
-  const sampleProcessingData = {
-    harvestMethod: "Manual Selectivo v3",
-    harvestedQuantity: "1500 kg",
-    processing: {
-      pulpingMethod: "Despulpado mecánico",
-      fermentationMethod: "Fermentación natural",
-      dryingMethod: "Secado al sol en camas africanas",
-      millingMethod: "Trilla mecánica",
-    },
-    quality: {
-      sortingMethod: "Selección manual y electrónica",
-      selectionCriteria: "Menos de 5 defectos por 300g",
-      defectsRemoved: "Granos negros, inmaduros y dañados",
-      finalMoisture: "10.5%",
-      packagingType: "Sacos de yute",
-    },
-  };
-
-  const sampleSustainabilityData = {
-    familiesBenefited: "25 familias",
-    biodiversityConservation: "Preservación de especies nativas",
-    cultivationTechniques: "Cultivo bajo sombra, orgánico",
-    waterManagement: "Sistema de tratamiento de aguas mieles",
-  };
-
   const generateLotId = () => {
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
@@ -255,24 +254,21 @@ export default function CoffeeLotTable() {
     return `LOT${year}${month}${random}`;
   };
 
-  const addDespulpado = async () => {
-    onOpenDespulpado(true);
-  };
-
   const addFermentacion = async () => {
     alert("add fermentacion");
   };
+  // Función para formatear la fech
 
   const handleCreateLot = async () => {
     if (contract) {
       try {
         setLoading(true); // Mostrar el spinner
         const lotId = generateLotId();
-
-        const dateFormated = dateFarm
-          ? `${dateFarm["year"]}-${dateFarm["month"]}-${dateFarm["day"]}`
-          : "";
-
+      
+    
+    
+        console.log("Fecha formateada:", selectedLot.fechaCosecha); // Verificar la fecha formateada
+       
         // Estima el gas necesario
         const gasEstimate = await contract.createLot.estimateGas(
           lotId,
@@ -283,9 +279,7 @@ export default function CoffeeLotTable() {
           selectedLot.variedad,
           selectedLot.altitud,
           selectedLot.method,
-          dateFormated,
-          sampleProcessingData,
-          sampleSustainabilityData,
+          selectedLot.fechaCosecha,
         );
 
         // Envía la transacción con un límite de gas mayor
@@ -298,54 +292,9 @@ export default function CoffeeLotTable() {
           selectedLot.variedad,
           selectedLot.altitud,
           selectedLot.method,
-          dateFormated,
-          sampleProcessingData,
-          sampleSustainabilityData,
+          selectedLot.fechaCosecha,
           { gasLimit: gasEstimate * BigInt(1) },
         );
-
-        // Espera a que la transacción sea minada
-        await tx.wait();
-
-        setIslotCreated(true); // Mostrar el spinner
-
-        fetchAllLots(contract);
-      } catch (error) {
-        setOnErrorStatus(true);
-        if (error instanceof Error) {
-          setOnErrorMessage(error.message);
-        } else {
-          setOnErrorMessage("An unknown error occurred");
-        }
-      } finally {
-        setLoading(false); // Ocultar el spinner al finalizar
-      }
-    }
-  };
-
-  const updateLotData = async () => {
-    if (contract) {
-      try {
-        setLoading(true); // Mostrar el spinner
-        const lotId = "LOT2502679";
-        // Estima el gas necesario
-        const gasEstimate = await contract.updateLotData.estimateGas(
-          lotId,
-          sampleProcessingData,
-          sampleSustainabilityData,
-        );
-
-        // console.log(gasEstimate, lotId, sampleProcessingData, sampleSustainabilityData);
-        // return 
-
-        // Envía la transacción con un límite de gas mayor
-        const tx = await contract.updateLotData(
-          lotId,
-          sampleProcessingData,
-          sampleSustainabilityData,
-          { gasLimit: gasEstimate * BigInt(1) },
-        );
-
         // Espera a que la transacción sea minada
         await tx.wait();
 
@@ -367,25 +316,34 @@ export default function CoffeeLotTable() {
 
   const fetchAllLots = async (contract) => {
     try {
-      const lots = await contract.getAllLotsInfo();
-      const mappedlots = lots.map((lot) => {
-        //convert to array
-        if (Object.values(lot).length > 0) {
-          return {
-            lote: lot[0],
-            caficultor: lot[1],
-            origen: lot[2],
-            variedad: lot[5],
-            altitud: lot[6],
-            fechaCosecha: lot[8],
-            harvestingMethod: lot[7],
-            farmSize: lot[3],
-            cantidad: [9],
-          };
-        }
-      });
+     // const lots = await contract.getAllLots();
+      const [
+        allLots, 
+        allDespulpadoData, 
+        allCosechaData, 
+        allSecadoData,
+        allTrilladoData,
+        allImpactoData
+      ] = await contract.getAllLots();
+      console.log(
+        allLots
+      ); // Verifica la estructura de los datos en la consola
 
-      setAllLots(mappedlots);
+      const mappedLots = allLots.map((lot) => {
+        return {
+          lote: lot.lotNumber,
+          caficultor: lot.farmerName,
+          origen: lot.farmLocation,
+          variedad: lot.variety,
+          altitud: lot.altitud,
+          fechaCosecha: lot.harvestTimestamp,
+          harvestingMethod: lot.harvestingMethod,
+          farmSize: lot.farmSize,
+          cantidad: lot.quantity,
+        };
+      });
+  
+      setAllLots(mappedLots); // Actualiza el estado con los lotes mapeados
     } catch (error) {
       setOnErrorStatus(true);
       if (error instanceof Error) {
@@ -398,7 +356,6 @@ export default function CoffeeLotTable() {
           "Error al obtener los lotes. Verifica la consola para más detalles.",
         );
       }
-
       return null;
     }
   };
@@ -481,9 +438,15 @@ export default function CoffeeLotTable() {
     }
   }, []);
 
+
+  const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
+  const handleSelectLot = (lotId: string) => {
+    setSelectedLotId(lotId); // Almacenar el ID del lote seleccionado
+    setIsOpenDespulpado(true); // Abrir la modal de despulpado
+  };
+
   const renderCell = React.useCallback((user, columnKey) => {
     const cellValue = user[columnKey];
-
     switch (columnKey) {
       case "actions":
         return (
@@ -499,16 +462,28 @@ export default function CoffeeLotTable() {
                 </Button>
               </DropdownTrigger>
               <DropdownMenu>
-                <DropdownItem key="view" onPress={addDespulpado}>
+              <DropdownItem key="modalCosecha" onPress={() => handleOpenCosechaModal(user.lote)}>
+                  Agregar Cosecha
+                </DropdownItem>
+                <DropdownItem key="view" onPress={() => handleSelectLot(user.lote)}>
                   Agregar Despulpado
                 </DropdownItem>
-                <DropdownItem key="edit" onPress={addFermentacion}>
-                  Agregar Fermentacion
+                <DropdownItem key="modalSecado" onPress={() => handleOpenSecadoModal(user.lote)}>
+                Agregar Secado
                 </DropdownItem>
-                <DropdownItem key="delete">Agregar Lavado</DropdownItem>
-                <DropdownItem key="secado">Agregar Secado</DropdownItem>
-                <DropdownItem key="trillado">Agregar Trillado</DropdownItem>
-                <DropdownItem key="empaque">Agregar Empaque</DropdownItem>
+                <DropdownItem key="modalTrillado" onPress={() => handleOpenTrilladoModal(user.lote)}>
+                Agregar Trillado
+                </DropdownItem>
+                <DropdownItem key="modalImpacto" onPress={() => handleOpenImpactoModal(user.lote)}>
+                Agregar Impacto
+                </DropdownItem>
+
+                <DropdownItem key="edit" onPress={addFermentacion}>
+                  Agregar Fermentacion(falta)
+                </DropdownItem>
+                <DropdownItem key="delete">Agregar Lavado(falta)</DropdownItem>
+                <DropdownItem key="clasificacion">Agregar Clasificacion(falta)</DropdownItem>
+                <DropdownItem key="empaque">Agregar Empaque(falta)</DropdownItem>
               </DropdownMenu>
             </Dropdown>
           </div>
@@ -709,7 +684,16 @@ export default function CoffeeLotTable() {
                         handleInputChange("variedad", e.target.value)
                       }
                     />
-                    <DatePicker label="Fecha de Cosecha" value={dateFarm} />
+                  
+                    <Input
+                    label="Fecha de Cosecha:"
+                    type="date"
+                    value={selectedLot.fecha}
+                    variant="bordered"
+                    onChange={(e) =>
+                      handleInputChange("fechaCosecha", e.target.value)
+                    }
+                  />
                     <Input
                       label="Cantidad cosechada"
                       value={selectedLot.cantidad}
@@ -782,101 +766,41 @@ export default function CoffeeLotTable() {
           )}
         </ModalContent>
       </Modal>
-      <Modal
-        isOpen={isOpenDespulpado}
-        placement="top-center"
-        onOpenChange={onOpenDespulpado}
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                Agregar Despulpado
-              </ModalHeader>
-              <ModalBody>
-                {!islotCreated && (
-                  <>
-                    <Input
-                      label="Método de clasificación:"
-                      value={despulpadoLot.clasification}
-                      variant="bordered"
-                      onChange={(e) =>
-                        handleInputChangeDespulpado(
-                          "clasification",
-                          e.target.value,
-                        )
-                      }
-                    />
-                    <Input
-                      label="Criterios de selección:"
-                      value={despulpadoLot.cristerios}
-                      variant="bordered"
-                      onChange={(e) =>
-                        handleInputChangeDespulpado(
-                          "cristerios",
-                          e.target.value,
-                        )
-                      }
-                    />
-                    <Input
-                      label="Porcentaje de defectos eliminados:"
-                      value={despulpadoLot.porcentaje}
-                      variant="bordered"
-                      onChange={(e) =>
-                        handleInputChangeDespulpado(
-                          "porcentaje",
-                          e.target.value,
-                        )
-                      }
-                    />
-                  </>
-                )}
-
-                {islotCreated && (
-                  <div className="flex items-center justify-center w-full">
-                    <Alert
-                      hideIcon
-                      color="success"
-                      description="El lote ha sido creado exitosamente"
-                      title="Lote creado con éxito."
-                      variant="faded"
-                    />
-                  </div>
-                )}
-                {onErrorStatus && (
-                  <div className="flex items-center justify-center w-full">
-                    <Alert
-                      hideIcon
-                      color="danger"
-                      title={onErrorMessage}
-                      variant="faded"
-                    />
-                  </div>
-                )}
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="flat" onPress={onClose}>
-                  Cerrar
-                </Button>
-
-                {!islotCreated && (
-                  <div className="flex flex-col items-center gap-4">
-                    <Button
-                      color="success"
-                      disabled={loading}
-                      variant="flat"
-                      onPress={updateLotData}
-                    >
-                      {loading ? "Creando..." : "Registrar despulpado"}
-                    </Button>
-                    {loading && <Spinner />}
-                  </div>
-                )}
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      <CosechaModal
+        isOpenCosecha={isOpenCosecha}
+        onOpenChange={setIsOpenCosecha}
+        contract={contract}
+        fetchAllLots={fetchAllLots}
+        lotId={lotId}
+      />
+      <DespulpadoModal
+        isOpenDespulpado={isOpenDespulpado}
+        onOpenChange={setIsOpenDespulpado}
+        contract={contract}
+        fetchAllLots={fetchAllLots}
+        lotId={selectedLotId} // Pasar el ID del lote seleccionado
+      />
+      <SecadoModal
+        isOpenSecado={isOpenSecado}
+        onOpenChange={setIsOpenSecado}
+        contract={contract}
+        fetchAllLots={fetchAllLots}
+        lotId={selectedLotId}
+      />
+      <TrilladoModal
+        isOpenTrillado={isOpenTrillado}
+        onOpenChange={setIsOpenTrillado}
+        contract={contract}
+        fetchAllLots={fetchAllLots}
+        lotId={selectedLotId}
+      />
+      <ImpactoModal
+        isOpenImpacto={isOpenImpacto}
+        onOpenChange={setIsOpenImpacto}
+        contract={contract}
+        fetchAllLots={fetchAllLots}
+        lotId={selectedLotId}
+      />
     </DefaultLayout>
   );
 }

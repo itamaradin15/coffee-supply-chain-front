@@ -29,6 +29,7 @@
     "@heroui/table": "^2.2.9",
     "@heroui/theme": "2.4.5",
     "@metamask/providers": "^19.0.0",
+    "@nextui-org/react": "^2.6.11",
     "@react-aria/visually-hidden": "3.8.18",
     "clsx": "2.1.1",
     "ethers": "^6.13.5",
