@@ -367,13 +367,13 @@
                     Ubicación: {{ lotData.lot.farmLocation }}<br>
                     Variedades: {{ lotData.lot.variety }}<br>
                     Altitud: {{ lotData.lot.altitud }}<br>
-                    Cosecha: {{ lotData.lot.quantity }} kg<br>
+                    Cosecha: {{ lotData.lot.quantity }}<br>
                     Método de cosecha: {{ lotData.lot.harvestingMethod }}<br>
                     Tamaño de la finca: {{ lotData.lot.farmSize }}
                 </div>
             </div>
         </li>
-        <li>
+        <li v-if="lotData.despulpado && lotData.despulpado.metodoDespulpado">
             <div class="direction-l">
                 <div class="flag-wrapper">
                     <span class="hexa"></span>
@@ -387,7 +387,7 @@
                 </div>
             </div>
         </li>
-        <li>
+        <li v-if="lotData.secado && lotData.secado.metodoSecado">
             <div class="direction-r">
                 <div class="flag-wrapper">
                     <span class="hexa"></span>
@@ -400,7 +400,7 @@
                 </div>
             </div>
         </li>
-        <li>
+        <li v-if="lotData.trillado && lotData.trillado.cantidadTrillada">
             <div class="direction-l">
                 <div class="flag-wrapper">
                     <span class="hexa"></span>
@@ -413,7 +413,7 @@
                 </div>
             </div>
         </li>
-        <li>
+        <li v-if="lotData.impacto && lotData.impacto.ayudaFamilias">
             <div class="direction-r">
                 <div class="flag-wrapper">
                     <span class="hexa"></span>
@@ -445,7 +445,7 @@ createApp({
     methods: {
         buscarLote() {
             if (this.loteSearch.trim() !== '') {
-                fetch(`http://localhost:3000/api/lots?lot=${this.loteSearch}`)
+                fetch(`https://backoffice.brioperu.com/api/lots?lot=${this.loteSearch}`)
                     .then(response => response.json())
                     .then(data => {
                         console.log('Response:', data);
