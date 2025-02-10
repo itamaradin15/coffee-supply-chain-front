@@ -688,7 +688,7 @@ export default function CoffeeLotTable() {
                     <Input
                     label="Fecha de Cosecha:"
                     type="date"
-                    value={selectedLot.fecha}
+                    value={selectedLot.fechaCosecha}
                     variant="bordered"
                     onChange={(e) =>
                       handleInputChange("fechaCosecha", e.target.value)

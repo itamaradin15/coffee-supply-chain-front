@@ -23,6 +23,7 @@ const ImpactoModal = ({
     pagoSobrePromedio: "",
     reduccionPesticidas: "",
     usoComposta: "",
+    fechaImpacto: "", // Nuevo campo para la fecha
   });
 
   const [isImpactoAdded, setIsImpactoAdded] = useState(false);
@@ -43,21 +44,25 @@ const ImpactoModal = ({
         setLoading(true);
         setOnErrorStatus(false);
 
+        // Validar que todos los campos estén completos
         if (
           !impactoData.ayudaFamilias ||
           !impactoData.pagoSobrePromedio ||
           !impactoData.reduccionPesticidas ||
-          !impactoData.usoComposta
+          !impactoData.usoComposta ||
+          !impactoData.fechaImpacto // Validar el nuevo campo
         ) {
           throw new Error("Por favor, complete todos los campos.");
         }
 
+        // Llamar al contrato con los nuevos datos
         await contract.addImpactoData(
           lotId,
           impactoData.ayudaFamilias,
           impactoData.pagoSobrePromedio,
           impactoData.reduccionPesticidas,
-          impactoData.usoComposta
+          impactoData.usoComposta,
+          impactoData.fechaImpacto // Enviar la fecha
         );
 
         setIsImpactoAdded(true);
@@ -86,6 +91,7 @@ const ImpactoModal = ({
       pagoSobrePromedio: "",
       reduccionPesticidas: "",
       usoComposta: "",
+      fechaImpacto: "", // Reiniciar el campo de fecha
     });
     setIsImpactoAdded(false);
     setLoading(false);
@@ -135,6 +141,15 @@ const ImpactoModal = ({
                     variant="bordered"
                     onChange={(e) =>
                       handleInputChangeImpacto("usoComposta", e.target.value)
+                    }
+                  />
+                  <Input
+                    type="date" // Nuevo campo de tipo fecha
+                    label="Fecha del impacto:"
+                    value={impactoData.fechaImpacto}
+                    variant="bordered"
+                    onChange={(e) =>
+                      handleInputChangeImpacto("fechaImpacto", e.target.value)
                     }
                   />
                 </>
