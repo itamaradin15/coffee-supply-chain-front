@@ -21,6 +21,7 @@ const SecadoModal = ({
   const [secadoData, setSecadoData] = useState({
     metodoSecado: "",
     humedadFinal: "",
+    fechaSecado: "", // Nuevo campo para la fecha del secado
   });
 
   const [isSecadoAdded, setIsSecadoAdded] = useState(false);
@@ -41,14 +42,15 @@ const SecadoModal = ({
         setLoading(true);
         setOnErrorStatus(false);
 
-        if (!secadoData.metodoSecado || !secadoData.humedadFinal) {
+        // Validar que todos los campos estén completos
+        if (!secadoData.metodoSecado || !secadoData.humedadFinal || !secadoData.fechaSecado) {
           throw new Error("Por favor, complete todos los campos.");
-        }
-
+        }        // Llamar al contrato con los nuevos datos
         await contract.addSecadoData(
           lotId,
           secadoData.metodoSecado,
-          secadoData.humedadFinal
+          secadoData.humedadFinal,
+          secadoData.fechaSecado // Enviar la fecha del secado
         );
 
         setIsSecadoAdded(true);
@@ -75,6 +77,7 @@ const SecadoModal = ({
     setSecadoData({
       metodoSecado: "",
       humedadFinal: "",
+      fechaSecado: "", // Reiniciar el campo de fecha
     });
     setIsSecadoAdded(false);
     setLoading(false);
@@ -108,6 +111,15 @@ const SecadoModal = ({
                     variant="bordered"
                     onChange={(e) =>
                       handleInputChangeSecado("humedadFinal", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Fecha del secado:"
+                    type="date"
+                    value={secadoData.fechaSecado}
+                    variant="bordered"
+                    onChange={(e) =>
+                      handleInputChangeSecado("fechaSecado", e.target.value)
                     }
                   />
                 </>

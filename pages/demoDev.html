@@ -197,7 +197,6 @@
             margin: 4px 0 0 0;
             z-index: 14;
             line-height: 1em;
-            vertical-align: middle;
             color: #fff;
         }
 
@@ -393,7 +392,7 @@
                 <div class="flag-wrapper">
                     <span class="hexa"></span>
                     <span class="flag">Secado</span>
-                    <span class="time-wrapper"><span class="time">Fecha no disponible</span></span>
+                    <span class="time-wrapper"><span class="time">{{ lotData.secado.fechaSecado }}</span></span>
                 </div>
                 <div class="desc">
                     Método de secado: {{ lotData.secado.metodoSecado }}<br>
@@ -419,7 +418,7 @@
                 <div class="flag-wrapper">
                     <span class="hexa"></span>
                     <span class="flag">Impacto</span>
-                    <span class="time-wrapper"><span class="time">Fecha no disponible</span></span>
+                    <span class="time-wrapper"><span class="time">{{ lotData.impacto.fechaImpacto }}</span></span>
                 </div>
                 <div class="desc">
                     Familias beneficiadas: {{ lotData.impacto.ayudaFamilias }}<br>

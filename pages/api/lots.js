@@ -63,6 +63,7 @@ export default async function handler(req, res) {
       secado: {
         metodoSecado: lotData.secado.metodoSecado,
         humedadFinal: lotData.secado.humedadFinal,
+        fechaSecado: lotData.secado.fechaSecado,
       },
       trillado: {
         fechaTrillado: lotData.trillado.fechaTrillado,
@@ -73,6 +74,7 @@ export default async function handler(req, res) {
         pagoSobrePromedio: lotData.impacto.pagoSobrePromedio,
         reduccionPesticidas: lotData.impacto.reduccionPesticidas,
         usoComposta: lotData.impacto.usoComposta,
+        fechaImpacto: lotData.impacto.fechaImpacto,
       },
     };
 
