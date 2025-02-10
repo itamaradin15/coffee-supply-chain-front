@@ -92,6 +92,7 @@ type Lot = {
   cantidad: string;
   farmSize: string;
   method: string;
+  fechaCosecha: string;
 };
 
 type Despulpado = {
@@ -134,7 +135,6 @@ export default function CoffeeLotTable() {
   const [isWalletConnected, setIsWalletConnected] = useState(false); // Estado para verificar si la wallet está conectada
   const [allLots, setAllLots] = useState([]); // Estado para almacenar todos los lotes
   const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [dateFarm] = React.useState();
   const [lotId, setLotId] = useState<string | null>(null)
   const [selectedLot, setSelectedLot] = useState({
     lote: "",
@@ -144,7 +144,7 @@ export default function CoffeeLotTable() {
     variedad: "",
     altitud: "",
     cantidad: "",
-    fecha: "",
+    fechaCosecha: "",
     farmSize: "",
     method: "",
   });
@@ -185,15 +185,6 @@ export default function CoffeeLotTable() {
     }));
   };
 
-  const handleInputChangeDespulpado = (
-    field: keyof Despulpado,
-    value: string,
-  ) => {
-    setDespulpadoLot((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
 
   useEffect(() => {
     const checkWalletConnection = async () => {
@@ -252,40 +243,6 @@ export default function CoffeeLotTable() {
     }
   };
 
-  // Función para obtener todos los lotes
-  const sampleProcessingData = {
-    harvestMethod: "Manual Selectivo v3",
-    harvestedQuantity: "1500 kg",
-    processing: {
-        pulpingMethod: "Despulpado mecánico",
-        fermentationMethod: "Fermentación natural",
-        dryingMethod: "Secado al sol en camas africanas",
-        millingMethod: "Trilla mecánica",
-    },
-    quality: {
-        sortingMethod: "Selección manual y electrónica",
-        selectionCriteria: "Menos de 5 defectos por 300g",
-        defectsRemoved: "Granos negros, inmaduros y dañados",
-        finalMoisture: "10.5%",
-        packagingType: "Sacos de yute",
-    },
-    despulpado: {
-        clasification: "Clasificación actualizada",
-        cristerios: "Criterios actualizados",
-        porcentaje: "80%",
-        destinoPulpa: "Destino actualizado",
-        harvestMethod: "Método actualizado",
-    },
-};
-
-  const sampleSustainabilityData = {
-    familiesBenefited: "25 familias",
-    biodiversityConservation: "Preservación de especies nativas",
-    cultivationTechniques: "Cultivo bajo sombra, orgánico",
-    waterManagement: "Sistema de tratamiento de aguas mieles",
-  };
-
-
   const generateLotId = () => {
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
@@ -300,16 +257,18 @@ export default function CoffeeLotTable() {
   const addFermentacion = async () => {
     alert("add fermentacion");
   };
+  // Función para formatear la fech
+
   const handleCreateLot = async () => {
     if (contract) {
       try {
         setLoading(true); // Mostrar el spinner
         const lotId = generateLotId();
-
-        const dateFormated = dateFarm
-          ? `${dateFarm["year"]}-${dateFarm["month"]}-${dateFarm["day"]}`
-          : "";
-
+      
+    
+    
+        console.log("Fecha formateada:", selectedLot.fechaCosecha); // Verificar la fecha formateada
+       
         // Estima el gas necesario
         const gasEstimate = await contract.createLot.estimateGas(
           lotId,
@@ -320,7 +279,7 @@ export default function CoffeeLotTable() {
           selectedLot.variedad,
           selectedLot.altitud,
           selectedLot.method,
-          dateFormated,
+          selectedLot.fechaCosecha,
         );
 
         // Envía la transacción con un límite de gas mayor
@@ -333,50 +292,9 @@ export default function CoffeeLotTable() {
           selectedLot.variedad,
           selectedLot.altitud,
           selectedLot.method,
-          dateFormated,
+          selectedLot.fechaCosecha,
           { gasLimit: gasEstimate * BigInt(1) },
         );
-
-        // Espera a que la transacción sea minada
-        await tx.wait();
-
-        setIslotCreated(true); // Mostrar el spinner
-
-        fetchAllLots(contract);
-      } catch (error) {
-        setOnErrorStatus(true);
-        if (error instanceof Error) {
-          setOnErrorMessage(error.message);
-        } else {
-          setOnErrorMessage("An unknown error occurred");
-        }
-      } finally {
-        setLoading(false); // Ocultar el spinner al finalizar
-      }
-    }
-  };
-
-  const updateLotData = async () => {
-    if (contract) {
-      try {
-        setLoading(true); // Mostrar el spinner
-        const lotId = "LOT2502334";
-        // Estima el gas necesario
-        const gasEstimate = await contract.updateLotData.estimateGas(
-          lotId,
-          sampleProcessingData,
-          sampleSustainabilityData,
-        );
-
-
-        // Envía la transacción con un límite de gas mayor
-        const tx = await contract.updateLotData(
-          lotId,
-          sampleProcessingData,
-          sampleSustainabilityData,
-          { gasLimit: gasEstimate * BigInt(1) },
-        );
-
         // Espera a que la transacción sea minada
         await tx.wait();
 
@@ -408,11 +326,7 @@ export default function CoffeeLotTable() {
         allImpactoData
       ] = await contract.getAllLots();
       console.log(
-        allDespulpadoData, 
-        allCosechaData, 
-        allSecadoData,
-        allTrilladoData,
-        allImpactoData
+        allLots
       ); // Verifica la estructura de los datos en la consola
 
       const mappedLots = allLots.map((lot) => {
@@ -770,7 +684,16 @@ export default function CoffeeLotTable() {
                         handleInputChange("variedad", e.target.value)
                       }
                     />
-                    <DatePicker label="Fecha de Cosecha" value={dateFarm} />
+                  
+                    <Input
+                    label="Fecha de Cosecha:"
+                    type="date"
+                    value={selectedLot.fecha}
+                    variant="bordered"
+                    onChange={(e) =>
+                      handleInputChange("fechaCosecha", e.target.value)
+                    }
+                  />
                     <Input
                       label="Cantidad cosechada"
                       value={selectedLot.cantidad}
