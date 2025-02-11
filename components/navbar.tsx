@@ -60,7 +60,7 @@ export const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden md:flex">
-          <Snippet hideCopyButton hideSymbol>0x0f66094f02b096f92da4f16a024570e865ba1c38</Snippet>
+          <Snippet hideCopyButton hideSymbol>0x4539be9516EA1FDA91a3B686613213fAE092AB22</Snippet>
         </NavbarItem>
         <NavbarItem className="hidden md:flex">
           <Button
