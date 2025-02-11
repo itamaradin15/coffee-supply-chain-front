@@ -11,100 +11,92 @@ import {
   Spinner,
 } from "@nextui-org/react";
 
-const SecadoModal = ({
-  isOpenSecado,
+const EmpaqueModal = ({
+  isOpenEmpaque,
   onOpenChange,
   contract,
   fetchAllLots,
   lotId,
 }) => {
-  // Estado local para manejar los datos del formulario
-  const [formData, setFormData] = useState({
-    metodoSecado: "",
-    humedadFinal: "",
-    fechaSecado: "",
+  // Estados para manejar los datos del formulario
+  const [empaqueData, setEmpaqueData] = useState({
+    tipoEmpaque: "",
+    pesoLote: "",
+    fechaEmpaque: "",
   });
-  // Estados adicionales
-  const [isSecadoAdded, setIsSecadoAdded] = useState(false);
+  const [isEmpaqueAdded, setIsEmpaqueAdded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [onErrorStatus, setOnErrorStatus] = useState(false);
   const [onErrorMessage, setOnErrorMessage] = useState("");
-  const [isDataLoaded, setIsDataLoaded] = useState(false); // Para verificar si los datos fueron cargados
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // Consultar datos del lote cuando se abre la modal
   useEffect(() => {
-    if (isOpenSecado && contract && lotId) {
+    if (isOpenEmpaque && contract && lotId) {
       const fetchLotData = async () => {
         try {
-          setIsDataLoaded(false); // Reiniciar estado de carga
+          setIsDataLoaded(false);
           const lotData = await contract.getLotWithAllData(lotId);
           const formattedLotData = {
-            metodoSecado: lotData.secado.metodoSecado || "",
-            humedadFinal: lotData.secado.humedadFinal || "",
-            fechaSecado: lotData.secado.fechaSecado || "",
+            tipoEmpaque: lotData.empaque.tipoEmpaque || "",
+            pesoLote: lotData.empaque.pesoLote || "",
+            fechaEmpaque: lotData.empaque.fechaEmpaque || "",
           };
-
-          // Actualizar el estado con los datos del lote
-          setFormData(formattedLotData);
-
-          // Verificar si ya hay datos de secado
-          if (formattedLotData.metodoSecado && formattedLotData.humedadFinal && formattedLotData.fechaSecado) {
-            setIsSecadoAdded(true); // Desactivar edición si ya hay datos
+          setEmpaqueData(formattedLotData);
+          if (
+            formattedLotData.tipoEmpaque &&
+            formattedLotData.pesoLote &&
+            formattedLotData.fechaEmpaque
+          ) {
+            setIsEmpaqueAdded(true);
           }
         } catch (error) {
           console.error("Error al consultar datos del lote:", error);
           setOnErrorStatus(true);
           setOnErrorMessage("Ocurrió un error al cargar los datos del lote.");
         } finally {
-          setIsDataLoaded(true); // Marcar como cargado
+          setIsDataLoaded(true);
         }
       };
-
       fetchLotData();
     }
-  }, [isOpenSecado, contract, lotId]);
+  }, [isOpenEmpaque, contract, lotId]);
 
   // Manejar cambios en los inputs
-  const handleInputChangeSecado = (field, value) => {
-    if (!isSecadoAdded) {
-      setFormData({
-        ...formData,
+  const handleInputChangeEmpaque = (field, value) => {
+    if (!isEmpaqueAdded) {
+      setEmpaqueData({
+        ...empaqueData,
         [field]: value,
       });
     }
   };
 
-  // Agregar datos de secado
-  const addSecadoData = async () => {
+  // Función para agregar datos de empaque
+  const addEmpaqueData = async () => {
     if (contract && lotId) {
       try {
         setLoading(true);
         setOnErrorStatus(false);
-
-        // Validar que todos los campos estén completos
-        if (!formData.metodoSecado || !formData.humedadFinal || !formData.fechaSecado) {
+        if (
+          !empaqueData.tipoEmpaque ||
+          !empaqueData.pesoLote ||
+          !empaqueData.fechaEmpaque
+        ) {
           throw new Error("Por favor, complete todos los campos.");
         }
-
-        // Llamar al contrato con los nuevos datos
-        await contract.addSecadoData(
+        await contract.addEmpaqueData(
           lotId,
-          formData.metodoSecado,
-          formData.humedadFinal,
-          formData.fechaSecado
+          empaqueData.tipoEmpaque,
+          empaqueData.pesoLote,
+          empaqueData.fechaEmpaque
         );
-
-        setIsSecadoAdded(true);
-        setOnErrorStatus(false);
+        setIsEmpaqueAdded(true);
         fetchAllLots(contract);
       } catch (error) {
-        console.error("Error al agregar datos de secado:", error);
+        console.error("Error al agregar datos de empaque:", error);
         setOnErrorStatus(true);
-        if (error instanceof Error) {
-          setOnErrorMessage(error.message);
-        } else {
-          setOnErrorMessage("Ocurrió un error desconocido.");
-        }
+        setOnErrorMessage(error instanceof Error ? error.message : "Ocurrió un error desconocido.");
       } finally {
         setLoading(false);
       }
@@ -114,14 +106,14 @@ const SecadoModal = ({
     }
   };
 
-  // Cerrar modal y reiniciar estados
+  // Función para cerrar la modal
   const handleCloseModal = () => {
-    setFormData({
-      metodoSecado: "",
-      humedadFinal: "",
-      fechaSecado: "",
+    setEmpaqueData({
+      tipoEmpaque: "",
+      pesoLote: "",
+      fechaEmpaque: "",
     });
-    setIsSecadoAdded(false);
+    setIsEmpaqueAdded(false);
     setLoading(false);
     setOnErrorStatus(false);
     setOnErrorMessage("");
@@ -129,12 +121,12 @@ const SecadoModal = ({
   };
 
   return (
-    <Modal isOpen={isOpenSecado} placement="top-center" onOpenChange={onOpenChange}>
+    <Modal isOpen={isOpenEmpaque} placement="top-center" onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              Datos de Secado
+              Agregar Datos de Empaque
             </ModalHeader>
             <ModalBody>
               {!isDataLoaded ? (
@@ -144,40 +136,40 @@ const SecadoModal = ({
               ) : (
                 <>
                   <Input
-                    label="Método de secado:"
-                    value={formData.metodoSecado}
+                    label="Tipo de empaque:"
+                    value={empaqueData.tipoEmpaque}
                     variant="bordered"
-                    isDisabled={isSecadoAdded} // Deshabilitar si ya hay datos
+                    isDisabled={isEmpaqueAdded}
                     onChange={(e) =>
-                      handleInputChangeSecado("metodoSecado", e.target.value)
+                      handleInputChangeEmpaque("tipoEmpaque", e.target.value)
                     }
                   />
                   <Input
-                    label="Humedad final del grano:"
-                    value={formData.humedadFinal}
+                    label="Peso del lote:"
+                    value={empaqueData.pesoLote}
                     variant="bordered"
-                    isDisabled={isSecadoAdded} // Deshabilitar si ya hay datos
+                    isDisabled={isEmpaqueAdded}
                     onChange={(e) =>
-                      handleInputChangeSecado("humedadFinal", e.target.value)
+                      handleInputChangeEmpaque("pesoLote", e.target.value)
                     }
                   />
                   <Input
-                    label="Fecha del secado:"
                     type="date"
-                    value={formData.fechaSecado}
+                    label="Fecha de empaque:"
+                    value={empaqueData.fechaEmpaque}
                     variant="bordered"
-                    isDisabled={isSecadoAdded} // Deshabilitar si ya hay datos
+                    isDisabled={isEmpaqueAdded}
                     onChange={(e) =>
-                      handleInputChangeSecado("fechaSecado", e.target.value)
+                      handleInputChangeEmpaque("fechaEmpaque", e.target.value)
                     }
                   />
-                  {isSecadoAdded && (
+                  {isEmpaqueAdded && (
                     <div className="flex items-center justify-center w-full mt-4">
                       <Alert
                         hideIcon
                         color="success"
-                        description="Los datos de secado ya han sido registrados."
-                        title="Datos de secado completos."
+                        description="Los datos de empaque ya han sido registrados."
+                        title="Datos de empaque completos."
                         variant="faded"
                       />
                     </div>
@@ -199,15 +191,15 @@ const SecadoModal = ({
               <Button variant="flat" onPress={handleCloseModal}>
                 Cerrar
               </Button>
-              {!isSecadoAdded && (
+              {!isEmpaqueAdded && (
                 <div className="flex flex-col items-center gap-4">
                   <Button
                     color="success"
                     disabled={loading}
                     variant="flat"
-                    onPress={addSecadoData}
+                    onPress={addEmpaqueData}
                   >
-                    {loading ? "Registrando..." : "Registrar secado"}
+                    {loading ? "Registrando..." : "Registrar empaque"}
                   </Button>
                   {loading && <Spinner />}
                 </div>
@@ -220,4 +212,4 @@ const SecadoModal = ({
   );
 };
 
-export default SecadoModal;
+export default EmpaqueModal;
