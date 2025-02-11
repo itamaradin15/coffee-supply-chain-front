@@ -11,99 +11,92 @@ import {
   Spinner,
 } from "@nextui-org/react";
 
-const TrilladoModal = ({
-  isOpenTrillado,
+const EmpaqueModal = ({
+  isOpenEmpaque,
   onOpenChange,
   contract,
   fetchAllLots,
   lotId,
 }) => {
   // Estados para manejar los datos del formulario
-  const [trilladoData, setTrilladoData] = useState({
-    fechaTrillado: "",
-    cantidadTrillada: "",
+  const [empaqueData, setEmpaqueData] = useState({
+    tipoEmpaque: "",
+    pesoLote: "",
+    fechaEmpaque: "",
   });
-  // Estados para manejar el estado de la modal
-  const [isTrilladoAdded, setIsTrilladoAdded] = useState(false);
+  const [isEmpaqueAdded, setIsEmpaqueAdded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [onErrorStatus, setOnErrorStatus] = useState(false);
   const [onErrorMessage, setOnErrorMessage] = useState("");
-  const [isDataLoaded, setIsDataLoaded] = useState(false); // Para verificar si los datos fueron cargados
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   // Consultar datos del lote cuando se abre la modal
   useEffect(() => {
-    if (isOpenTrillado && contract && lotId) {
+    if (isOpenEmpaque && contract && lotId) {
       const fetchLotData = async () => {
         try {
-          setIsDataLoaded(false); // Reiniciar estado de carga
+          setIsDataLoaded(false);
           const lotData = await contract.getLotWithAllData(lotId);
           const formattedLotData = {
-            fechaTrillado: lotData.trillado.fechaTrillado || "",
-            cantidadTrillada: lotData.trillado.cantidadTrillada || "",
+            tipoEmpaque: lotData.empaque.tipoEmpaque || "",
+            pesoLote: lotData.empaque.pesoLote || "",
+            fechaEmpaque: lotData.empaque.fechaEmpaque || "",
           };
-
-          // Actualizar el estado con los datos del lote
-          setTrilladoData(formattedLotData);
-
-          // Verificar si ya hay datos de trillado
-          if (formattedLotData.fechaTrillado && formattedLotData.cantidadTrillada) {
-            setIsTrilladoAdded(true); // Desactivar edición si ya hay datos
+          setEmpaqueData(formattedLotData);
+          if (
+            formattedLotData.tipoEmpaque &&
+            formattedLotData.pesoLote &&
+            formattedLotData.fechaEmpaque
+          ) {
+            setIsEmpaqueAdded(true);
           }
         } catch (error) {
           console.error("Error al consultar datos del lote:", error);
           setOnErrorStatus(true);
           setOnErrorMessage("Ocurrió un error al cargar los datos del lote.");
         } finally {
-          setIsDataLoaded(true); // Marcar como cargado
+          setIsDataLoaded(true);
         }
       };
-
       fetchLotData();
     }
-  }, [isOpenTrillado, contract, lotId]);
+  }, [isOpenEmpaque, contract, lotId]);
 
-  // Función para manejar cambios en los inputs
-  const handleInputChangeTrillado = (field, value) => {
-    if (!isTrilladoAdded) {
-      setTrilladoData({
-        ...trilladoData,
+  // Manejar cambios en los inputs
+  const handleInputChangeEmpaque = (field, value) => {
+    if (!isEmpaqueAdded) {
+      setEmpaqueData({
+        ...empaqueData,
         [field]: value,
       });
     }
   };
 
-  // Función para agregar datos de trillado a un lote existente
-  const addTrilladoData = async () => {
+  // Función para agregar datos de empaque
+  const addEmpaqueData = async () => {
     if (contract && lotId) {
       try {
         setLoading(true);
         setOnErrorStatus(false);
-
-        // Validar campos
-        if (!trilladoData.fechaTrillado || !trilladoData.cantidadTrillada) {
+        if (
+          !empaqueData.tipoEmpaque ||
+          !empaqueData.pesoLote ||
+          !empaqueData.fechaEmpaque
+        ) {
           throw new Error("Por favor, complete todos los campos.");
         }
-
-        // Llamar a la función del contrato para agregar datos de trillado
-        await contract.addTrilladoData(
-          lotId, // Usar el ID del lote recibido como prop
-          trilladoData.fechaTrillado,
-          trilladoData.cantidadTrillada
+        await contract.addEmpaqueData(
+          lotId,
+          empaqueData.tipoEmpaque,
+          empaqueData.pesoLote,
+          empaqueData.fechaEmpaque
         );
-
-        // Actualizar el estado
-        setIsTrilladoAdded(true);
-        setOnErrorStatus(false);
-        // Recargar los lotes
+        setIsEmpaqueAdded(true);
         fetchAllLots(contract);
       } catch (error) {
-        console.error("Error al agregar datos de trillado:", error);
+        console.error("Error al agregar datos de empaque:", error);
         setOnErrorStatus(true);
-        if (error instanceof Error) {
-          setOnErrorMessage(error.message);
-        } else {
-          setOnErrorMessage("Ocurrió un error desconocido.");
-        }
+        setOnErrorMessage(error instanceof Error ? error.message : "Ocurrió un error desconocido.");
       } finally {
         setLoading(false);
       }
@@ -113,32 +106,27 @@ const TrilladoModal = ({
     }
   };
 
-  // Función para cerrar la modal y reiniciar los estados
+  // Función para cerrar la modal
   const handleCloseModal = () => {
-    // Reiniciar los estados
-    setTrilladoData({
-      fechaTrillado: "",
-      cantidadTrillada: "",
+    setEmpaqueData({
+      tipoEmpaque: "",
+      pesoLote: "",
+      fechaEmpaque: "",
     });
-    setIsTrilladoAdded(false);
+    setIsEmpaqueAdded(false);
     setLoading(false);
     setOnErrorStatus(false);
     setOnErrorMessage("");
-    // Cerrar la modal
     onOpenChange(false);
   };
 
   return (
-    <Modal
-      isOpen={isOpenTrillado}
-      placement="top-center"
-      onOpenChange={onOpenChange} // Usar onOpenChange para manejar el cierre
-    >
+    <Modal isOpen={isOpenEmpaque} placement="top-center" onOpenChange={onOpenChange}>
       <ModalContent>
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              Datos de Trillado
+              Agregar Datos de Empaque
             </ModalHeader>
             <ModalBody>
               {!isDataLoaded ? (
@@ -148,31 +136,40 @@ const TrilladoModal = ({
               ) : (
                 <>
                   <Input
-                    label="Fecha de trillado:"
-                    type="date"
-                    value={trilladoData.fechaTrillado}
+                    label="Tipo de empaque:"
+                    value={empaqueData.tipoEmpaque}
                     variant="bordered"
-                    isDisabled={isTrilladoAdded} // Deshabilitar si ya hay datos
+                    isDisabled={isEmpaqueAdded}
                     onChange={(e) =>
-                      handleInputChangeTrillado("fechaTrillado", e.target.value)
+                      handleInputChangeEmpaque("tipoEmpaque", e.target.value)
                     }
                   />
                   <Input
-                    label="Cantidad de café trillado:"
-                    value={trilladoData.cantidadTrillada}
+                    label="Peso del lote:"
+                    value={empaqueData.pesoLote}
                     variant="bordered"
-                    isDisabled={isTrilladoAdded} // Deshabilitar si ya hay datos
+                    isDisabled={isEmpaqueAdded}
                     onChange={(e) =>
-                      handleInputChangeTrillado("cantidadTrillada", e.target.value)
+                      handleInputChangeEmpaque("pesoLote", e.target.value)
                     }
                   />
-                  {isTrilladoAdded && (
+                  <Input
+                    type="date"
+                    label="Fecha de empaque:"
+                    value={empaqueData.fechaEmpaque}
+                    variant="bordered"
+                    isDisabled={isEmpaqueAdded}
+                    onChange={(e) =>
+                      handleInputChangeEmpaque("fechaEmpaque", e.target.value)
+                    }
+                  />
+                  {isEmpaqueAdded && (
                     <div className="flex items-center justify-center w-full mt-4">
                       <Alert
                         hideIcon
                         color="success"
-                        description="Los datos de trillado ya han sido registrados."
-                        title="Datos de trillado completos."
+                        description="Los datos de empaque ya han sido registrados."
+                        title="Datos de empaque completos."
                         variant="faded"
                       />
                     </div>
@@ -194,15 +191,15 @@ const TrilladoModal = ({
               <Button variant="flat" onPress={handleCloseModal}>
                 Cerrar
               </Button>
-              {!isTrilladoAdded && (
+              {!isEmpaqueAdded && (
                 <div className="flex flex-col items-center gap-4">
                   <Button
                     color="success"
                     disabled={loading}
                     variant="flat"
-                    onPress={addTrilladoData}
+                    onPress={addEmpaqueData}
                   >
-                    {loading ? "Registrando..." : "Registrar trillado"}
+                    {loading ? "Registrando..." : "Registrar empaque"}
                   </Button>
                   {loading && <Spinner />}
                 </div>
@@ -215,4 +212,4 @@ const TrilladoModal = ({
   );
 };
 
-export default TrilladoModal;
+export default EmpaqueModal;

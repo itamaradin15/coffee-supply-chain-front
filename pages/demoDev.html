@@ -15,7 +15,7 @@
 
         #searchButton {
             padding: 10px 15px;
-            background-color: #00c4f3;
+            background-color: #1e3326;
             color: white;
             border: none;
             border-radius: 4px;
@@ -25,7 +25,7 @@
         }
 
         #searchButton:hover {
-            background-color: #009bc4;
+            background-color: #1e3326;
         }
 
         .search-container {
@@ -117,7 +117,7 @@
             width: 16px;
             height: 10px;
             position: absolute;
-            background: #00c4f3;
+            background: #1e3326;
             z-index: 5;
             left: 0;
             right: 0;
@@ -128,7 +128,7 @@
         }
 
         .timeline .hexa:before {
-            border-bottom: 4px solid #00c4f3;
+            border-bottom: 4px solid #1e3326;
             border-left-width: 8px;
             border-right-width: 8px;
             top: -4px;
@@ -137,7 +137,7 @@
         .timeline .hexa:after {
             border-left-width: 8px;
             border-right-width: 8px;
-            border-top: 4px solid #00c4f3;
+            border-top: 4px solid #1e3326;
             bottom: -4px;
         }
 
@@ -209,15 +209,28 @@
         }
 
         .time {
-            background: #00c4f3;
+            background: #1e3326;
             display: inline-block;
             padding: 8px;
+            border-radius: 8px;
+        }
+
+        .nameProduct {
+            background: #1e3326;
+            display: inline-block;
+            padding: 10px; 
+            z-index: 16;
+            color: white;
+            margin-bottom: 30px;
+            border-radius: 10px;
+
         }
 
         .desc {
             position: relative;
             margin: 1em 0 0 0;
             padding: 1em;
+            line-height: 1.6;
             background: rgb(254, 254, 254);
             -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.20);
             -moz-box-shadow: 0 0 1px rgba(0, 0, 0, 0.20);
@@ -343,6 +356,24 @@
                 float: right;
                 text-align: left;
             }
+            .direction-c {
+                width: 100%; /* Ocupa todo el ancho disponible */
+                text-align: center; /* Centra el texto horizontalmente */
+                margin: 0 auto; /* Centra el bloque horizontalmente */
+                position: relative; /* Para posicionar elementos hijos relativamente */
+                z-index: 10; /* Asegura que esté por encima de otros elementos */
+            }
+            .contract-text {
+                font-weight: 600;
+                background-color: #1e3326;
+                color: white;
+                border: 1px solid #1e3326;
+                padding: 7px;
+                border-radius: 10px;
+                width: 100px;
+                margin: auto;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
@@ -350,11 +381,25 @@
 
 <div id="app">
     <div class="search-container">
+       
+        <br>
         <input type="text" v-model="loteSearch" placeholder="Ingrese número de lote">
         <button id="searchButton" @click="buscarLote">Buscar</button>
+    </div> 
+    <div style="text-align: center; font-weight: 300;">
+        <div class="contract-text"> Contrato </div>
+            0x09ab4c38e660040681FE88a5754E95788CCE83f0
     </div>
+ 
 
     <ul class="timeline" v-if="mostrarTimeline">
+
+        <div class="direction-c" v-if="lotData.lot">
+            <div class="flag-wrapper">
+                <h2 class="nameProduct">{{ lotData.lot.nameProduct }}</h2>
+            </div>
+        </div>
+        <!-- Registro del Caficultor -->
         <li>
             <div class="direction-r">
                 <div class="flag-wrapper">
@@ -373,6 +418,7 @@
                 </div>
             </div>
         </li>
+
         <li v-if="lotData.despulpado && lotData.despulpado.metodoDespulpado">
             <div class="direction-l">
                 <div class="flag-wrapper">
@@ -387,6 +433,40 @@
                 </div>
             </div>
         </li>
+
+        <!-- Fermentación -->
+        <li v-if="lotData.fermentacion && lotData.fermentacion.duracionFermentacion">
+            <div class="direction-r">
+                <div class="flag-wrapper">
+                    <span class="hexa"></span>
+                    <span class="flag">Fermentación</span>
+                    <span class="time-wrapper"><span class="time">{{ lotData.fermentacion.fechaFermentacion }}</span></span>
+                </div>
+                <div class="desc">
+                    Duración de la fermentación: {{ lotData.fermentacion.duracionFermentacion }}<br>
+                    Temperatura promedio: {{ lotData.fermentacion.temperaturaPromedio }}<br>
+                    Método de fermentación: {{ lotData.fermentacion.metodoFermentacion }}
+                </div>
+            </div>
+        </li>
+
+        <!-- Lavado -->
+        <li v-if="lotData.lavado && lotData.lavado.volumenAguaUtilizada">
+            <div class="direction-l">
+                <div class="flag-wrapper">
+                    <span class="hexa"></span>
+                    <span class="flag">Lavado</span>
+                    <span class="time-wrapper"><span class="time">{{ lotData.lavado.fechaLavado }}</span></span>
+                </div>
+                <div class="desc">
+                    Volumen de agua utilizada: {{ lotData.lavado.volumenAguaUtilizada }}<br>
+                    Método de reciclaje de agua: {{ lotData.lavado.metodoReciclajeAgua }}<br>
+                    Cantidad de agua reutilizada: {{ lotData.lavado.cantidadAguaReutilizada }}
+                </div>
+            </div>
+        </li>
+
+        <!-- Secado -->
         <li v-if="lotData.secado && lotData.secado.metodoSecado">
             <div class="direction-r">
                 <div class="flag-wrapper">
@@ -400,6 +480,8 @@
                 </div>
             </div>
         </li>
+
+        <!-- Trillado -->
         <li v-if="lotData.trillado && lotData.trillado.cantidadTrillada">
             <div class="direction-l">
                 <div class="flag-wrapper">
@@ -413,6 +495,39 @@
                 </div>
             </div>
         </li>
+
+        <!-- Clasificación del Grano -->
+        <li v-if="lotData.clasificacionGrano && lotData.clasificacionGrano.metodoClasificacion">
+            <div class="direction-r">
+                <div class="flag-wrapper">
+                    <span class="hexa"></span>
+                    <span class="flag">Clasificación del Grano</span>
+                    <span class="time-wrapper"><span class="time">{{ lotData.clasificacionGrano.fechaClasificacion }}</span></span>
+                </div>
+                <div class="desc">
+                    Método de clasificación: {{ lotData.clasificacionGrano.metodoClasificacion }}<br>
+                    Criterios de selección: {{ lotData.clasificacionGrano.criteriosSeleccion }}<br>
+                    Porcentaje de impurezas: {{ lotData.clasificacionGrano.porcentajeImpurezas }}
+                </div>
+            </div>
+        </li>
+
+        <!-- Empaque -->
+        <li v-if="lotData.empaque && lotData.empaque.tipoEmpaque">
+            <div class="direction-l">
+                <div class="flag-wrapper">
+                    <span class="hexa"></span>
+                    <span class="flag">Empaque</span>
+                    <span class="time-wrapper"><span class="time">{{ lotData.empaque.fechaEmpaque }}</span></span>
+                </div>
+                <div class="desc">
+                    Tipo de empaque: {{ lotData.empaque.tipoEmpaque }}<br>
+                    Peso del lote: {{ lotData.empaque.pesoLote }}
+                </div>
+            </div>
+        </li>
+
+        <!-- Impacto -->
         <li v-if="lotData.impacto && lotData.impacto.ayudaFamilias">
             <div class="direction-r">
                 <div class="flag-wrapper">
@@ -421,8 +536,10 @@
                     <span class="time-wrapper"><span class="time">{{ lotData.impacto.fechaImpacto }}</span></span>
                 </div>
                 <div class="desc">
+                    <strong>Social:</strong><br />
                     Familias beneficiadas: {{ lotData.impacto.ayudaFamilias }}<br>
                     Pago sobre promedio: {{ lotData.impacto.pagoSobrePromedio }}<br>
+                    <strong>Ambiental:</strong><br />
                     Reducción de pesticidas: {{ lotData.impacto.reduccionPesticidas }}<br>
                     Uso de composta: {{ lotData.impacto.usoComposta }}
                 </div>
@@ -448,7 +565,6 @@ createApp({
                 fetch(`https://backoffice.brioperu.com/api/lots?lot=${this.loteSearch}`)
                     .then(response => response.json())
                     .then(data => {
-                        console.log('Response:', data);
                         this.mostrarTimeline = true;
                         this.lotData = data.lotData; // Asignar los datos del API
                     })

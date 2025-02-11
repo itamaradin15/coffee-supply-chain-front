@@ -44,6 +44,7 @@ export default async function handler(req, res) {
     const formattedLotData = {
       lot: {
         lotNumber: lotData.lot.lotNumber,
+        nameProduct: lotData.lot.producto,
         farmerName: lotData.lot.farmerName,
         farmLocation: lotData.lot.farmLocation,
         farmSize: lotData.lot.farmSize,
@@ -53,6 +54,28 @@ export default async function handler(req, res) {
         harvestingMethod: lotData.lot.harvestingMethod,
         harvestTimestamp: lotData.lot.harvestTimestamp,
         isActive: lotData.lot.isActive,
+      },
+      cosecha: {
+        nombreCaficultor: lotData.cosecha.nombreCaficultor,
+        ubicacion: lotData.cosecha.ubicacion,
+        tamanoFinca: lotData.cosecha.tamanoFinca,
+        variedadesCultivadas: lotData.cosecha.variedadesCultivadas,
+        altitudCultivo: lotData.cosecha.altitudCultivo,
+        fechaCosecha: lotData.cosecha.fechaCosecha,
+        metodoCosecha: lotData.cosecha.metodoCosecha,
+        cantidadCosechada: lotData.cosecha.cantidadCosechada,
+      },
+      fermentacion: {
+        duracionFermentacion: lotData.fermentacion.duracionFermentacion,
+        temperaturaPromedio: lotData.fermentacion.temperaturaPromedio,
+        metodoFermentacion: lotData.fermentacion.metodoFermentacion,
+        fechaFermentacion: lotData.fermentacion.fechaFermentacion,
+      },
+      lavado: {
+        volumenAguaUtilizada: lotData.lavado.volumenAguaUtilizada,
+        metodoReciclajeAgua: lotData.lavado.metodoReciclajeAgua,
+        cantidadAguaReutilizada: lotData.lavado.cantidadAguaReutilizada,
+        fechaLavado: lotData.lavado.fechaLavado,
       },
       despulpado: {
         metodoDespulpado: lotData.despulpado.metodoDespulpado,
@@ -65,9 +88,20 @@ export default async function handler(req, res) {
         humedadFinal: lotData.secado.humedadFinal,
         fechaSecado: lotData.secado.fechaSecado,
       },
+      clasificacionGrano: {
+        metodoClasificacion: lotData.clasificacionGrano.metodoClasificacion,
+        criteriosSeleccion: lotData.clasificacionGrano.criteriosSeleccion,
+        porcentajeImpurezas: lotData.clasificacionGrano.porcentajeImpurezas,
+        fechaClasificacion: lotData.clasificacionGrano.fechaClasificacion,
+      },
       trillado: {
         fechaTrillado: lotData.trillado.fechaTrillado,
         cantidadTrillada: lotData.trillado.cantidadTrillada,
+      },
+      empaque: {
+        tipoEmpaque: lotData.empaque.tipoEmpaque,
+        pesoLote: lotData.empaque.pesoLote,
+        fechaEmpaque: lotData.empaque.fechaEmpaque,
       },
       impacto: {
         ayudaFamilias: lotData.impacto.ayudaFamilias,

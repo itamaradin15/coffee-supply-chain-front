@@ -38,12 +38,16 @@ import CosechaModal from "./Components/CosechaModal";
 import SecadoModal from "./Components/SecadoModal";
 import TrilladoModal from "./Components/TrilladoModal";
 import ImpactoModal from "./Components/ImpactoModal";
-
+import FermentacionModal from "./Components/FermentacionModal";
+import LavadoModal from "./Components/LavadoModal"
+import EmpaqueModal from "./Components/EmpaqueModal"
+import ClasificacionModal from "./Components/ClasificacionModal"
 
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS!;
 
 const columns = [
   { name: "LOTE", uid: "lote", sortable: true },
+  { name: "NOMBRE PRODUCTO", uid: "producto", sortable: true },
   { name: "CAFICULTOR", uid: "caficultor", sortable: true },
   { name: "ORIGEN", uid: "origen", sortable: true },
   { name: "TAM. GRANJA", uid: "farmSize", sortable: true },
@@ -127,6 +131,10 @@ export default function CoffeeLotTable() {
   const [isOpenSecado, setIsOpenSecado] = useState(false);
   const [isOpenTrillado, setIsOpenTrillado] = useState(false);
   const [isOpenImpacto, setIsOpenImpacto] = useState(false);
+  const [isOpenFermentacion, setIsOpenFermentacion] = useState(false);
+  const [isOpenLavado, setIsOpenLavado] = useState(false);
+  const [isOpenClasificacion, setIsOpenClasificacion] = useState(false);
+  const [isOpenEmpaque, setIsOpenEmpaque] = useState(false);
   const [loading, setLoading] = useState(false);
   const [islotCreated, setIslotCreated] = useState(false);
   const [onErrorStatus, setOnErrorStatus] = useState(false);
@@ -177,6 +185,28 @@ export default function CoffeeLotTable() {
       setSelectedLotId(lotId);
       setIsOpenImpacto(true);
     };
+
+    const handleOpenFermentacionModal = (lotId) => {
+      setSelectedLotId(lotId);
+      setIsOpenFermentacion(true);
+    };
+
+    const handleOpenLavadoModal = (lotId) => {
+      setSelectedLotId(lotId);
+      setIsOpenLavado(true);
+    };
+
+    const handleOpenClasificacionModal = (lotId) => {
+      setSelectedLotId(lotId);
+      setIsOpenClasificacion(true);
+    };
+
+    const handleOpenEmpaqueModal = (lotId) => {
+      setSelectedLotId(lotId);
+      setIsOpenEmpaque(true);
+    };
+
+
 
   const handleInputChange = (field: keyof Lot, value: string) => {
     setSelectedLot((prev) => ({
@@ -254,24 +284,17 @@ export default function CoffeeLotTable() {
     return `LOT${year}${month}${random}`;
   };
 
-  const addFermentacion = async () => {
-    alert("add fermentacion");
-  };
   // Función para formatear la fech
 
   const handleCreateLot = async () => {
     if (contract) {
       try {
         setLoading(true); // Mostrar el spinner
-        const lotId = generateLotId();
-      
-    
-    
-        console.log("Fecha formateada:", selectedLot.fechaCosecha); // Verificar la fecha formateada
-       
+        const lotId = generateLotId();       
         // Estima el gas necesario
         const gasEstimate = await contract.createLot.estimateGas(
           lotId,
+          selectedLot.producto,
           selectedLot.caficultor,
           selectedLot.origen,
           selectedLot.farmSize,
@@ -285,6 +308,7 @@ export default function CoffeeLotTable() {
         // Envía la transacción con un límite de gas mayor
         const tx = await contract.createLot(
           lotId,
+          selectedLot.producto,
           selectedLot.caficultor,
           selectedLot.origen,
           selectedLot.farmSize,
@@ -325,13 +349,11 @@ export default function CoffeeLotTable() {
         allTrilladoData,
         allImpactoData
       ] = await contract.getAllLots();
-      console.log(
-        allLots
-      ); // Verifica la estructura de los datos en la consola
-
+ 
       const mappedLots = allLots.map((lot) => {
         return {
           lote: lot.lotNumber,
+          producto: lot.producto,
           caficultor: lot.farmerName,
           origen: lot.farmLocation,
           variedad: lot.variety,
@@ -464,16 +486,28 @@ export default function CoffeeLotTable() {
               <DropdownMenu>
             
                 <DropdownItem key="view" onPress={() => handleSelectLot(user.lote)}>
-                  Agregar Despulpado
+                  Despulpado
                 </DropdownItem>
                 <DropdownItem key="modalSecado" onPress={() => handleOpenSecadoModal(user.lote)}>
-                Agregar Secado
+                Secado
                 </DropdownItem>
                 <DropdownItem key="modalTrillado" onPress={() => handleOpenTrilladoModal(user.lote)}>
-                Agregar Trillado
+                Trillado
                 </DropdownItem>
                 <DropdownItem key="modalImpacto" onPress={() => handleOpenImpactoModal(user.lote)}>
-                Agregar Impacto
+                Impacto
+                </DropdownItem>
+                <DropdownItem key="modalFermentacion" onPress={() => handleOpenFermentacionModal(user.lote)}>
+                Fermentaciòn
+                </DropdownItem>
+                <DropdownItem key="modalLavado" onPress={() => handleOpenLavadoModal(user.lote)}>
+                Lavado
+                </DropdownItem>
+                <DropdownItem key="modalClasificacion" onPress={() => handleOpenClasificacionModal(user.lote)}>
+                Clasificaciòn del grano
+                </DropdownItem>
+                <DropdownItem key="modalEmpaque" onPress={() => handleOpenEmpaqueModal(user.lote)}>
+                Empaque
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
@@ -643,6 +677,14 @@ export default function CoffeeLotTable() {
               <ModalBody>
                 {!islotCreated && (
                   <>
+                  <Input
+                      label="Nombre del Producto"
+                      value={selectedLot.producto}
+                      variant="bordered"
+                      onChange={(e) =>
+                        handleInputChange("producto", e.target.value)
+                      }
+                    />
                     <Input
                       label="Nombre del caficultor o cooperativa"
                       value={selectedLot.caficultor}
@@ -788,6 +830,34 @@ export default function CoffeeLotTable() {
       <ImpactoModal
         isOpenImpacto={isOpenImpacto}
         onOpenChange={setIsOpenImpacto}
+        contract={contract}
+        fetchAllLots={fetchAllLots}
+        lotId={selectedLotId}
+      />
+      <FermentacionModal
+        isOpenFermentacion={isOpenFermentacion}
+        onOpenChange={setIsOpenFermentacion}
+        contract={contract}
+        fetchAllLots={fetchAllLots}
+        lotId={selectedLotId}
+      />
+      <LavadoModal
+        isOpenLavado={isOpenLavado}
+        onOpenChange={setIsOpenLavado}
+        contract={contract}
+        fetchAllLots={fetchAllLots}
+        lotId={selectedLotId}
+      />
+      <ClasificacionModal
+        isOpenClasificacion={isOpenClasificacion}
+        onOpenChange={setIsOpenClasificacion}
+        contract={contract}
+        fetchAllLots={fetchAllLots}
+        lotId={selectedLotId}
+      />
+      <EmpaqueModal
+        isOpenEmpaque={isOpenEmpaque}
+        onOpenChange={setIsOpenEmpaque}
         contract={contract}
         fetchAllLots={fetchAllLots}
         lotId={selectedLotId}
