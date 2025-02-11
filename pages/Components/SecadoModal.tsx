@@ -14,7 +14,6 @@ import {
 const SecadoModal = ({
   isOpenSecado,
   onOpenChange,
-  secadoData: initialSecadoData, // Renombramos la prop para evitar conflictos
   contract,
   fetchAllLots,
   lotId,
