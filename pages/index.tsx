@@ -488,26 +488,26 @@ export default function CoffeeLotTable() {
                 <DropdownItem key="view" onPress={() => handleSelectLot(user.lote)}>
                   Despulpado
                 </DropdownItem>
-                <DropdownItem key="modalSecado" onPress={() => handleOpenSecadoModal(user.lote)}>
-                Secado
-                </DropdownItem>
-                <DropdownItem key="modalTrillado" onPress={() => handleOpenTrilladoModal(user.lote)}>
-                Trillado
-                </DropdownItem>
-                <DropdownItem key="modalImpacto" onPress={() => handleOpenImpactoModal(user.lote)}>
-                Impacto
-                </DropdownItem>
                 <DropdownItem key="modalFermentacion" onPress={() => handleOpenFermentacionModal(user.lote)}>
-                Fermentaciòn
+                  Fermentaciòn
                 </DropdownItem>
                 <DropdownItem key="modalLavado" onPress={() => handleOpenLavadoModal(user.lote)}>
-                Lavado
+                  Lavado
+                </DropdownItem>
+                <DropdownItem key="modalSecado" onPress={() => handleOpenSecadoModal(user.lote)}>
+                  Secado
+                </DropdownItem>
+                <DropdownItem key="modalTrillado" onPress={() => handleOpenTrilladoModal(user.lote)}>
+                  Trillado
                 </DropdownItem>
                 <DropdownItem key="modalClasificacion" onPress={() => handleOpenClasificacionModal(user.lote)}>
-                Clasificaciòn del grano
+                  Clasificaciòn del grano
                 </DropdownItem>
                 <DropdownItem key="modalEmpaque" onPress={() => handleOpenEmpaqueModal(user.lote)}>
-                Empaque
+                  Empaque
+                </DropdownItem>
+                <DropdownItem key="modalImpacto" onPress={() => handleOpenImpactoModal(user.lote)}>
+                  Impacto
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
